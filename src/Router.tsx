@@ -1,9 +1,31 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Home } from "./page/Home";
+import { Clips } from "./components/Clips";
+import { Awards } from "./components/Awards";
+import { Dashboard } from "./components/Dashboard";
+import { LadingPage } from "./components";
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <h1>Aqui comienza la leyenda de los Perro Flautas!!</h1>,
+    element: <Home />,
+    children: [
+      {
+        path: "/",
+        element: <LadingPage />,
+      },
+      {
+        path: "/clips",
+        element: <Clips />,
+      },
+      {
+        path: "/awards",
+        element: <Awards />,
+      },
+      {
+        path: "/dashboard",
+        element: <Dashboard />,
+      },
+    ],
   },
 ]);
 export function Router() {

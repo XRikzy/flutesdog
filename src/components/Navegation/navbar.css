@@ -1,0 +1,14 @@
+.navlink {
+    text-decoration: none;
+    color: inherit;
+    padding: 8px 16px;
+    display: inline-block;
+  }
+  
+  .navlink:hover {
+    color: rgb(77, 89, 128); /* Gris semi-transparente */
+  }
+  
+  .navlink-active {
+    color: rgb(96, 135, 180); /* Letras en color azul cuando esté activo */
+}
