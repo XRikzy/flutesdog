@@ -2,8 +2,8 @@ import { AppShell } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Route, Routes } from "react-router-dom";
 import { NavBar } from "../components/Navegation/NavBar";
-import { Awards, Clips, Dashboard, LadingPage } from "../components";
 import { Header } from "../components/Header/Header";
+import { Awards, Clips, Dashboard, LadingPage } from "../components";
 export const Home = () => {
   const [opened, { toggle }] = useDisclosure();
   return (

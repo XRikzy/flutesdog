@@ -1,4 +1,6 @@
 export interface Ivideos {
   id: string;
-  dataField: [{ title: string; tag: []; embed: string }];
+  title: string;
+  tag: [];
+  embed: string;
 }

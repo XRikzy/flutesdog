@@ -13,7 +13,7 @@ export const fetchData = async (): Promise<Ivideos[]> => {
     );
     return querySnapshot.docs.map((doc) => ({
       id: doc.id,
-      dataField: doc.data().dataField || [],
+      ...doc.data(),
     }));
   } catch (error) {
     console.error("Error fetching documents: ", error);
