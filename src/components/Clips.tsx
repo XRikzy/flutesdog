@@ -1,7 +1,6 @@
-import { AspectRatio, Badge, Button, Group, SimpleGrid, Title } from "@mantine/core";
+import { AspectRatio, Badge, Group, SimpleGrid, Title } from "@mantine/core";
 import { useGetClips } from "../hooks/useGetClips";
 import { Loading } from "./Loading";
-import { handleSave } from "../services/addClips";
 
 export const Clips = () => {
   const { data, loading } = useGetClips();
@@ -10,7 +9,6 @@ export const Clips = () => {
       <SimpleGrid
         cols={3}
         spacing="sm"
-        mt="12px"
         verticalSpacing="sm"
         px={"10px"}
       >

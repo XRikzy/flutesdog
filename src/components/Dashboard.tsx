@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Accordion } from "@mantine/core";
+import { Box, Flex, Text } from "@mantine/core";
 import { IconClipboard, IconAward, IconScreenshot } from "@tabler/icons-react";
 import classes from "./css/NavbarSimple.module.css";
 import { ClipsTable } from "./Dashboard/ClipsTable";
@@ -31,19 +31,21 @@ export function Dashboard() {
 
   return (
     <>
-      <div className={classes.main}>
-        <nav className={classes.navbar}>
-          <div className={classes.navbarMain}>
-            <Accordion variant="filled" radius="lg">
-              <Accordion.Item value="content">
-                <Accordion.Control>Contenido</Accordion.Control>
-                <Accordion.Panel>{links}</Accordion.Panel>
-              </Accordion.Item>
-            </Accordion>
-          </div>
-        </nav>
+      <Flex
+        direction={{ base: "column", sm: "row" }}
+        gap={{ sm: "lg" }}
+        justify={{ sm: "center" }}
+        p={10}
+      >
+        <Box bg="#2e2e2e" my="xl" style={{ borderRadius: 20 }} h={200} w={200}>
+          <Text p={10} ml={2} mt={3}>
+            Contenido
+          </Text>
+          {links}
+        </Box>
+
         <ClipsTable />
-      </div>
+      </Flex>
     </>
   );
 }

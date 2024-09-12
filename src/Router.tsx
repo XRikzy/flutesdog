@@ -3,7 +3,7 @@ import { Home } from "./page/Home";
 import { Clips } from "./components/Clips";
 import { Awards } from "./components/Awards";
 import { Dashboard } from "./components/Dashboard";
-import { LadingPage } from "./components";
+import { LandingPage } from "./components";
 
 const router = createBrowserRouter([
   {
@@ -11,7 +11,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <LadingPage />,
+        element: <LandingPage />,
       },
       {
         path: "/clips",

@@ -8,7 +8,7 @@ type HeaderProps = {
 };
 export const Header = ({ opened, toggle }: HeaderProps) => {
   return (
-    <Group h="100%" px="md">
+    <Group h="100%" px="xl">
       <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
       <Title order={3}>Perro Flautas</Title>
       <Group justify="center" style={{ flex: 1 }}>

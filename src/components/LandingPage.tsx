@@ -1,6 +1,6 @@
 import { Button, Container, Text, Title } from "@mantine/core";
 import classes from './css/HeroImageRight.module.css';
-export const LadingPage = () => {
+export const LandingPage = () => {
   return (
     <div className={classes.root}>
       <Container size="lg">
