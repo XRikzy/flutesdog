@@ -8,8 +8,6 @@ import {
   TextInput,
   rem,
   Tooltip,
-  Box,
-  Center,
   Group,
 } from "@mantine/core";
 import classes from "./TableSort.module.css";

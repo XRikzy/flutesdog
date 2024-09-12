@@ -6,16 +6,11 @@ export const Clips = () => {
   const { data, loading } = useGetClips();
   return (
     <div>
-      <SimpleGrid
-        cols={3}
-        spacing="sm"
-        verticalSpacing="sm"
-        px={"10px"}
-      >
-        {loading ? (
-          <Loading />
-        ) : (
-          data.map(({ id, title, embed, tag }) => (
+      {loading ? (
+        <Loading />
+      ) : (
+        <SimpleGrid cols={3} spacing="sm" verticalSpacing="sm" px={"10px"}>
+          {data.map(({ id, title, embed, tag }) => (
             <div key={id} style={{ padding: "10px" }}>
               <AspectRatio ratio={1080 / 720} mx="auto">
                 <iframe
@@ -39,9 +34,9 @@ export const Clips = () => {
                 </Group>
               </div>
             </div>
-          ))
-        )}
-      </SimpleGrid>
+          ))}
+        </SimpleGrid>
+      )}
     </div>
   );
 };
