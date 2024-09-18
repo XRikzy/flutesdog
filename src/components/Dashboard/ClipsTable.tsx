@@ -13,9 +13,12 @@ import {
 import classes from "./TableSort.module.css";
 import { useGetClips } from "../../hooks/useGetClips";
 import { IconEdit, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
+import { ClipsModalAdd } from "./ClipsModalAdd";
 
 export function ClipsTable() {
   const [scrolled, setScrolled] = useState(false);
+  const [opened, { open, close }] = useDisclosure();
   const { data } = useGetClips();
   const rows = data.map((row) => (
     <Table.Tr key={row.id}>
@@ -62,7 +65,6 @@ export function ClipsTable() {
         h={800}
         onScrollPositionChange={({ y }) => setScrolled(y !== 0)}
       >
-        
         <Group style={{ display: "flex", justifyContent: "flex-end" }}>
           <TextInput
             placeholder="Busca el titulo"
@@ -76,7 +78,7 @@ export function ClipsTable() {
             mr="20px"
           />
           <Tooltip label="Agregar nuevo clip">
-            <ActionIcon mt="2px">
+            <ActionIcon onClick={open}>
               <IconPlus style={{ width: "70%", height: "70%" }} stroke={2} />
             </ActionIcon>
           </Tooltip>
@@ -95,6 +97,7 @@ export function ClipsTable() {
           </Table.Thead>
           <Table.Tbody>{rows}</Table.Tbody>
         </Table>
+        <ClipsModalAdd opened={opened} close={close} />
       </ScrollArea>
     </>
   );
