@@ -1,9 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Home } from "./page/Home";
-import { Clips } from "./components/Clips";
-import { Awards } from "./components/Awards/Awards";
-import { Dashboard } from "./components/Dashboard/Dashboard";
-import { LandingPage } from "./components";
+import { Awards, Clips, Dashboard, LandingPage } from "./components";
 
 const router = createBrowserRouter([
   {

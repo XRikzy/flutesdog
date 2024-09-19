@@ -1,6 +1,7 @@
 import { AspectRatio, Badge, Group, SimpleGrid, Title } from "@mantine/core";
-import { useGetClips } from "../hooks/useGetClips";
-import { Loading } from "./Loading";
+
+import { useGetClips } from "../../hooks/Clips/useGetClips";
+import { Loading } from "../Loading";
 
 export const Clips = () => {
   const { data, loading } = useGetClips();
