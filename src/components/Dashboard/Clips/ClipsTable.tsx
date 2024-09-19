@@ -9,6 +9,7 @@ import {
   rem,
   Tooltip,
   Group,
+  Flex,
 } from "@mantine/core";
 import classes from "./TableSort.module.css";
 import { useGetClips } from "../../../hooks/Clips/useGetClips";
@@ -43,16 +44,21 @@ export function ClipsTable() {
         />
       </Table.Td>
       <Table.Td>
-        <Tooltip label="Editar">
-          <ActionIcon size="lg" radius="lg">
-            <IconEdit style={{ width: "70%", height: "70%" }} stroke={2} />
-          </ActionIcon>
-        </Tooltip>
-        <Tooltip label="Eliminar">
-          <ActionIcon ml={8} color="red" size="lg" radius="lg">
-            <IconTrash style={{ width: "70%", height: "70%" }} stroke={2} />
-          </ActionIcon>
-        </Tooltip>
+        <Flex
+          direction={{ base: "column", md: "row" }}
+          gap={{ sm: "xs", md: "5px" }}
+        >
+          <Tooltip label="Editar">
+            <ActionIcon size="lg" radius="lg" mr={8}>
+              <IconEdit style={{ width: "70%", height: "70%" }} stroke={2} />
+            </ActionIcon>
+          </Tooltip>
+          <Tooltip label="Eliminar">
+            <ActionIcon color="red" size="lg" radius="lg">
+              <IconTrash style={{ width: "70%", height: "70%" }} stroke={2} />
+            </ActionIcon>
+          </Tooltip>
+        </Flex>
       </Table.Td>
     </Table.Tr>
   ));

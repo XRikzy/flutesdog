@@ -43,7 +43,6 @@ export function Dashboard() {
           </Text>
           {links}
         </Box>
-
         <ClipsTable />
       </Flex>
     </>
