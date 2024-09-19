@@ -11,7 +11,7 @@ import {
   Group,
 } from "@mantine/core";
 import classes from "./TableSort.module.css";
-import { useGetClips } from "../../hooks/useGetClips";
+import { useGetClips } from "../../../hooks/Clips/useGetClips";
 import { IconEdit, IconSearch, IconTrash } from "@tabler/icons-react";
 import { ClipsModalAdd } from "./ClipsModalAdd";
 

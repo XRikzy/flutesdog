@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Ivideos } from "../constants/documents";
-import { fetchData } from "../services/getClips";
+import { Ivideos } from "../../constants/documents";
+import { fetchData } from "../../services/getClips";
 export const useGetClips = () => {
   const [data, setData] = useState<Ivideos[]>([]);
   const [loading, setLoading] = useState<boolean>(true);

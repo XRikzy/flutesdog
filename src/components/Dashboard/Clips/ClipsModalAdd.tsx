@@ -7,6 +7,7 @@ export const ClipsModalAdd = () => {
     modals.openConfirmModal({
       title: "Agregar Clip",
       centered: true,
+      radius:'lg',
       children: (
         <>
           <TextInput
