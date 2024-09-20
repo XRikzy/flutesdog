@@ -1,7 +1,6 @@
 import { Button, Group, Modal, TagsInput, TextInput } from "@mantine/core";
 
 import { useClipsForm } from "./hook/useClipsForm";
-import { handleSave } from "../../../services/addClips";
 import { useAddClips } from "../../../hooks/Clips/useAddClips";
 
 type Props = {
