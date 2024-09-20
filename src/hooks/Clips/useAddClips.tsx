@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { AddClipValues } from "../../constants/documents";
 import { handleSave } from "../../services/addClips";
 export const useAddClips = () => {
