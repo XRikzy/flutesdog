@@ -51,7 +51,7 @@ export function ClipsTable() {
           gap={{ sm: "xs", md: "5px" }}
         >
           <Tooltip label="Editar">
-            <ActionIcon size="lg" radius="lg" mr={8}>
+            <ActionIcon size="lg" radius="lg">
               <IconEdit style={{ width: "70%", height: "70%" }} stroke={2} />
             </ActionIcon>
           </Tooltip>
@@ -67,44 +67,44 @@ export function ClipsTable() {
 
   return (
     <>
-      <ScrollArea
-        h={800}
-        onScrollPositionChange={({ y }) => setScrolled(y !== 0)}
-      >
-        <Group style={{ display: "flex", justifyContent: "flex-end" }}>
-          <TextInput
-            placeholder="Busca el titulo"
-            leftSection={
-              <IconSearch
-                style={{ width: rem(16), height: rem(16) }}
-                stroke={1.5}
-              />
-            }
-            style={{ flex: 1 }}
-            mr="20px"
-          />
-          <Tooltip label="Agregar nuevo clip">
-            <ActionIcon onClick={open}>
-              <IconPlus style={{ width: "70%", height: "70%" }} stroke={2} />
-            </ActionIcon>
-          </Tooltip>
-          <ClipsModalAdd opened={opened} close={close} />
-        </Group>
+      <Group style={{ display: "flex", justifyContent: "flex-end" }}>
+        <TextInput
+          placeholder="Busca el titulo"
+          leftSection={
+            <IconSearch
+              style={{ width: rem(16), height: rem(16) }}
+              stroke={1.5}
+            />
+          }
+          style={{ flex: 1 }}
+          mr="20px"
+        />
 
-        <Table miw={800} verticalSpacing="lg" horizontalSpacing="sm">
-          <Table.Thead
-            className={cx(classes.header, { [classes.scrolled]: scrolled })}
-          >
-            <Table.Tr>
-              <Table.Th>Titulo</Table.Th>
-              <Table.Th>Etiquetas</Table.Th>
-              <Table.Th>Video</Table.Th>
-              <Table.Th>Acciones</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>{rows}</Table.Tbody>
-        </Table>
-      </ScrollArea>
+        <Tooltip label="Agregar nuevo clip">
+          <ActionIcon onClick={open}>
+            <IconPlus style={{ width: "70%", height: "70%" }} stroke={2} />
+          </ActionIcon>
+        </Tooltip>
+        <ClipsModalAdd opened={opened} close={close} />
+        <ScrollArea
+          h={900}
+          onScrollPositionChange={({ y }) => setScrolled(y !== 0)}
+        >
+          <Table miw={800} verticalSpacing="lg" horizontalSpacing="sm">
+            <Table.Thead
+              className={cx(classes.header, { [classes.scrolled]: scrolled })}
+            >
+              <Table.Tr>
+                <Table.Th>Titulo</Table.Th>
+                <Table.Th>Etiquetas</Table.Th>
+                <Table.Th>Video</Table.Th>
+                <Table.Th>Acciones</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>{rows}</Table.Tbody>
+          </Table>
+        </ScrollArea>
+      </Group>
     </>
   );
 }

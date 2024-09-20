@@ -2,13 +2,13 @@ import { MantineProvider } from "@mantine/core";
 import { theme } from "./theme";
 import { Router } from "./Router";
 import "@mantine/core/styles.css";
-import { ModalsProvider } from "@mantine/modals";
+import "@mantine/notifications/styles.css";
+import { Notifications } from "@mantine/notifications";
 export default function App() {
   return (
     <MantineProvider theme={theme} defaultColorScheme="dark">
-      <ModalsProvider>
-        <Router />
-      </ModalsProvider>
+      <Notifications />
+      <Router />
     </MantineProvider>
   );
 }

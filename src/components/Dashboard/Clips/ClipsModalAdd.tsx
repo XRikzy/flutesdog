@@ -1,39 +1,33 @@
 import { Button, Group, Modal, TagsInput, TextInput } from "@mantine/core";
 
 import { useClipsForm } from "./hook/useClipsForm";
-import { addDoc, collection } from "firebase/firestore";
-import { db } from "../../../webservice/firebase";
+import { handleSave } from "../../../services/addClips";
+import { useAddClips } from "../../../hooks/Clips/useAddClips";
 
 type Props = {
   opened: boolean;
   close: () => void;
 };
-type Values = {
-  title: string;
-  embed: string;
-  tag: never[];
-};
+
 export const ClipsModalAdd = ({ opened, close }: Props) => {
   const { form } = useClipsForm();
+  const { addData, error, loading } = useAddClips();
   const handleModalsCancel = () => {
     close();
     form.reset();
   };
-  const handleSave = async ({ title, embed, tag }: Values) => {
-    try {
-      await addDoc(collection(db, "Clips"), {
-        title,
-        embed,
-        tag,
-      });
-      console.log ("El clip ha sido agregado correctamente!!");
-    } catch (error) {
-      return error;
-    }
+  const handleButtonState = () => {
+    
   };
   return (
-    <Modal opened={opened} onClose={close} title="Agregar clip" centered>
-      <form onSubmit={form.onSubmit((values) => handleSave(values))}>
+    <Modal
+      opened={opened}
+      onClose={close}
+      title="Agregar clip"
+      centered
+      radius={15}
+    >
+      <form onSubmit={form.onSubmit((values) => addData(values))}>
         <TextInput
           title="Agregar titulo"
           label="Titulo del clip"
@@ -45,8 +39,8 @@ export const ClipsModalAdd = ({ opened, close }: Props) => {
         <TagsInput
           label="Tags"
           placeholder="Enter para agregar tag"
-          key={form.key("tags")}
-          {...form.getInputProps("tags")}
+          key={form.key("tag")}
+          {...form.getInputProps("tag")}
         />
         <TextInput
           title="EmbedURL"
@@ -59,7 +53,9 @@ export const ClipsModalAdd = ({ opened, close }: Props) => {
           <Button onClick={handleModalsCancel} variant="default" color="gray">
             Cancelar
           </Button>
-          <Button type="submit">Agregar Clip</Button>
+          <Button type="submit" onClick={handleButtonState} loading={loading}>
+            Agregar Clip
+          </Button>
         </Group>
       </form>
     </Modal>

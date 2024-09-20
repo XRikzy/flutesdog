@@ -1,26 +1,23 @@
 import { useEffect, useState } from "react";
-import { Ivideos } from "../../constants/documents";
-import { fetchData } from "../../services/getClips";
+import { AddClipValues } from "../../constants/documents";
 import { handleSave } from "../../services/addClips";
 export const useAddClips = () => {
-  const [data, setData] = useState<Ivideos[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
-    const addDocuments = async () => {
-      try {
-        const data = await handleSave();
-        setData(data);
-      } catch {
-        setError("Error Fetching documents");
-      } finally {
-        setLoading(false);
-      }
-    };
-    addDocuments();
-  }, []);
+  const addData = async (data: AddClipValues) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await handleSave(data);
+      console.log("Document written");
+    } catch (err) {
+      setError("Error adding document: " + err);
+    } finally {
+      setLoading(false);
+    }
+  };
   return {
-    data,
+    addData,
     error,
     loading,
   };
