@@ -13,11 +13,13 @@ import {
 } from "@mantine/core";
 import classes from "./TableSort.module.css";
 import { useGetClips } from "../../../hooks/Clips/useGetClips";
-import { IconEdit, IconSearch, IconTrash } from "@tabler/icons-react";
+import { IconEdit, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
 import { ClipsModalAdd } from "./ClipsModalAdd";
+import { useDisclosure } from "@mantine/hooks";
 
 export function ClipsTable() {
   const [scrolled, setScrolled] = useState(false);
+  const [opened, { open, close }] = useDisclosure(false);
   const { data } = useGetClips();
   const rows = data.map((row) => (
     <Table.Tr key={row.id}>
@@ -82,8 +84,11 @@ export function ClipsTable() {
             mr="20px"
           />
           <Tooltip label="Agregar nuevo clip">
-            <ClipsModalAdd />
+            <ActionIcon onClick={open}>
+              <IconPlus style={{ width: "70%", height: "70%" }} stroke={2} />
+            </ActionIcon>
           </Tooltip>
+          <ClipsModalAdd opened={opened} close={close} />
         </Group>
 
         <Table miw={800} verticalSpacing="lg" horizontalSpacing="sm">
