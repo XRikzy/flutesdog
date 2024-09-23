@@ -1,4 +1,4 @@
-import { Button, Container, Text, Title } from "@mantine/core";
+import { Box, Button, Container, Image, Text, Title } from "@mantine/core";
 import classes from "./HeroImageRight.module.css";
 
 export const Hero = () => {
@@ -8,27 +8,25 @@ export const Hero = () => {
         <div className={classes.inner}>
           <div className={classes.content}>
             <Title className={classes.title}>
-              A{" "}
+              Bienvenido a los
               <Text
                 component="span"
                 inherit
                 variant="gradient"
-                gradient={{ from: "pink", to: "yellow" }}
+                gradient={{ from: "white", to: "cyan" }}
+                ml={10}
               >
-                fully featured
+                perro flautas
               </Text>{" "}
-              React components library
             </Title>
 
             <Text className={classes.description} mt={30}>
-              Build fully functional accessible web applications with ease –
-              Mantine includes more than 100 customizable components and hooks
-              to cover you in any situation
+              En este lugar veras los mejores momentos con mis amigos en clips y capturas de pantalla graciosas
             </Text>
 
             <Button
               variant="gradient"
-              gradient={{ from: "pink", to: "yellow" }}
+              gradient={{ from: "blue", to: "cyan" }}
               size="xl"
               className={classes.control}
               mt={40}
@@ -36,6 +34,16 @@ export const Hero = () => {
               Get started
             </Button>
           </div>
+          <Image
+            className={classes.image}
+            radius="xl"
+            h={300}
+            mt={30}
+            p={10}
+            w="auto"
+            fit="contain"
+            src="src\assets\Hero.png"
+          />
         </div>
       </Container>
     </div>
