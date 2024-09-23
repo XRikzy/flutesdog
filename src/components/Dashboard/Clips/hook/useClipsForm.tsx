@@ -2,7 +2,7 @@ import { useForm } from "@mantine/form";
 
 export const useClipsForm = () => {
   const regex: RegExp =
-    /^https:\/\/www\.youtube\.com\/embed\/[a-zA-Z0-9_-]{11}$/;
+    /^https?:\/\/(www\.)?youtube\.com\/embed\//;
   const form = useForm({
     mode: "uncontrolled",
     initialValues: {
@@ -11,8 +11,10 @@ export const useClipsForm = () => {
       embed: "",
     },
     validate: {
-      embed: (value) =>
-        regex.test(value) ? null : "Tiene que ser un URL de youtube",
+      embed: (value: string) =>
+        regex.test(value) ? null : "No haz agregado un URL embed de youtube",
+      title: (value: string) =>
+        value === "" ? "Escribe un titulo primero" : null,
     },
   });
   return { form };

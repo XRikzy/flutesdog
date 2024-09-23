@@ -2,6 +2,8 @@ import { Button, Group, Modal, TagsInput, TextInput } from "@mantine/core";
 
 import { useClipsForm } from "./hook/useClipsForm";
 import { useAddClips } from "../../../hooks/Clips/useAddClips";
+import { notifications } from "@mantine/notifications";
+import { AddClipValues } from "../../../constants/documents";
 
 type Props = {
   opened: boolean;
@@ -10,13 +12,26 @@ type Props = {
 
 export const ClipsModalAdd = ({ opened, close }: Props) => {
   const { form } = useClipsForm();
-  const { addData, error, loading } = useAddClips();
+  const { addData, error, errorState, loading } = useAddClips();
   const handleModalsCancel = () => {
     close();
     form.reset();
   };
-  const handleButtonState = () => {
-    
+  const handleButtonState = (values: AddClipValues) => {
+    if (loading) {
+      addData(values);
+      notifications.show({
+        title: "Lo datos se han agregado",
+        message: "Visita los clips para ver el nuevo clip!!",
+      });
+      close();
+    }
+    if (errorState) {
+      notifications.show({
+        title: "Oops paso algo",
+        message: error,
+      });
+    }
   };
   return (
     <Modal
@@ -26,7 +41,7 @@ export const ClipsModalAdd = ({ opened, close }: Props) => {
       centered
       radius={15}
     >
-      <form onSubmit={form.onSubmit((values) => addData(values))}>
+      <form onSubmit={form.onSubmit((values) => handleButtonState(values))}>
         <TextInput
           title="Agregar titulo"
           label="Titulo del clip"
@@ -52,7 +67,7 @@ export const ClipsModalAdd = ({ opened, close }: Props) => {
           <Button onClick={handleModalsCancel} variant="default" color="gray">
             Cancelar
           </Button>
-          <Button type="submit" onClick={handleButtonState} loading={loading}>
+          <Button type="submit" loading={!loading}>
             Agregar Clip
           </Button>
         </Group>

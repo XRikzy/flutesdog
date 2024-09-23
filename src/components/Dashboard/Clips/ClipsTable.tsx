@@ -67,44 +67,46 @@ export function ClipsTable() {
 
   return (
     <>
-      <Group style={{ display: "flex", justifyContent: "flex-end" }}>
-        <TextInput
-          placeholder="Busca el titulo"
-          leftSection={
-            <IconSearch
-              style={{ width: rem(16), height: rem(16) }}
-              stroke={1.5}
-            />
-          }
-          style={{ flex: 1 }}
-          mr="20px"
-        />
+      
+        <Group style={{ display: "flex", justifyContent: "flex-end" }}>
+          <TextInput
+            placeholder="Busca el titulo"
+            leftSection={
+              <IconSearch
+                style={{ width: rem(16), height: rem(16) }}
+                stroke={1.5}
+              />
+            }
+            style={{ flex: 1 }}
+            mr="20px"
+          />
 
-        <Tooltip label="Agregar nuevo clip">
-          <ActionIcon onClick={open}>
-            <IconPlus style={{ width: "70%", height: "70%" }} stroke={2} />
-          </ActionIcon>
-        </Tooltip>
-        <ClipsModalAdd opened={opened} close={close} />
-        <ScrollArea
-          h={900}
-          onScrollPositionChange={({ y }) => setScrolled(y !== 0)}
-        >
-          <Table miw={800} verticalSpacing="lg" horizontalSpacing="sm">
-            <Table.Thead
-              className={cx(classes.header, { [classes.scrolled]: scrolled })}
-            >
-              <Table.Tr>
-                <Table.Th>Titulo</Table.Th>
-                <Table.Th>Etiquetas</Table.Th>
-                <Table.Th>Video</Table.Th>
-                <Table.Th>Acciones</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>{rows}</Table.Tbody>
-          </Table>
-        </ScrollArea>
-      </Group>
+          <Tooltip label="Agregar nuevo clip">
+            <ActionIcon onClick={open}>
+              <IconPlus style={{ width: "70%", height: "70%" }} stroke={2} />
+            </ActionIcon>
+          </Tooltip>
+          <ClipsModalAdd opened={opened} close={close} />
+          <ScrollArea
+            h={900}
+            onScrollPositionChange={({ y }) => setScrolled(y !== 0)}
+          >
+            <Table miw={800} verticalSpacing="lg" horizontalSpacing="sm">
+              <Table.Thead
+                className={cx(classes.header, { [classes.scrolled]: scrolled })}
+              >
+                <Table.Tr>
+                  <Table.Th>Titulo</Table.Th>
+                  <Table.Th>Etiquetas</Table.Th>
+                  <Table.Th>Video</Table.Th>
+                  <Table.Th>Acciones</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>{rows}</Table.Tbody>
+            </Table>
+          </ScrollArea>
+        </Group>
+     
     </>
   );
 }
