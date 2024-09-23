@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Box, Flex, Text } from "@mantine/core";
 import { IconClipboard, IconAward, IconScreenshot } from "@tabler/icons-react";
 import classes from "./css/NavbarSimple.module.css";
-import { ClipsTable } from "./clips/ClipsTable";
 import { Loading } from "../Loading";
 import { useGetClips } from "../../hooks/Clips/useGetClips";
+import { ClipsTable } from "./clips";
 
 const data = [
   { id: "clips", link: "", label: "Clips", icon: IconClipboard },
