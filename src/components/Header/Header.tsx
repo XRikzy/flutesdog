@@ -1,7 +1,6 @@
 import { ActionIcon, Burger, Group, Title } from "@mantine/core";
 import { NavBar } from "../Navegation/NavBar";
 import { IconBrandTiktok } from "@tabler/icons-react";
-import classes from "./header.module.css";
 type HeaderProps = {
   opened: boolean;
   toggle: () => void;
@@ -20,7 +19,6 @@ export const Header = ({ opened, toggle }: HeaderProps) => {
         <ActionIcon
           variant="subtle"
           aria-label="Tik tok"
-          className={classes.control}
           component="a"
           href="https://www.tiktok.com/@all4nb?_t=8kIM1a3KEEQ&_r=1"
           size="md"
