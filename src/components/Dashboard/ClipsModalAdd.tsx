@@ -1,9 +1,10 @@
 import { Button, Group, Modal, TagsInput, TextInput } from "@mantine/core";
 
-import { useClipsForm } from "./hook/useClipsForm";
-import { useAddClips } from "../../../hooks/Clips/useAddClips";
+
+import { useAddClips } from "../../hooks/Clips/useAddClips";
 import { notifications } from "@mantine/notifications";
-import { AddClipValues } from "../../../constants/documents";
+import { AddClipValues } from "../../constants/documents";
+import { useClipsForm } from "./hook/useClipsForm";
 
 type Props = {
   opened: boolean;

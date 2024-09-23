@@ -4,7 +4,7 @@ import { IconClipboard, IconAward, IconScreenshot } from "@tabler/icons-react";
 import classes from "./css/NavbarSimple.module.css";
 import { Loading } from "../Loading";
 import { useGetClips } from "../../hooks/Clips/useGetClips";
-import { ClipsTable } from "./clips/ClipsTable";
+import { ClipsTable } from "./ClipsTable";
 const data = [
   { id: "clips", link: "", label: "Clips", icon: IconClipboard },
   { id: "awards", link: "", label: "Awards", icon: IconAward },
