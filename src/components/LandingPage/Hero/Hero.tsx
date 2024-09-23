@@ -1,4 +1,4 @@
-import { Box, Button, Container, Image, Text, Title } from "@mantine/core";
+import { Button, Container, Image, Text, Title } from "@mantine/core";
 import classes from "./HeroImageRight.module.css";
 
 export const Hero = () => {
@@ -21,7 +21,8 @@ export const Hero = () => {
             </Title>
 
             <Text className={classes.description} mt={30}>
-              En este lugar veras los mejores momentos con mis amigos en clips y capturas de pantalla graciosas
+              En este lugar veras los mejores momentos con mis amigos en clips y
+              capturas de pantalla graciosas
             </Text>
 
             <Button
