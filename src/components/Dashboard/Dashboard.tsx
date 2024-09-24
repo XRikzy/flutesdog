@@ -36,19 +36,19 @@ export function Dashboard() {
         <Loading />
       ) : (
         <Flex
-          direction={{ base: "column", sm: "row" }}
-          gap={{ sm: "lg" }}
+          direction={{ base: "column", sm: "column", md:'row', xl:'row' }}
+          gap={{ base: 'sm', sm: 'lg' }}
           justify={{ sm: "center" }}
           p={10}
+          
         >
           <Box
             bg="#2e2e2e"
-            my="xl"
-            style={{ borderRadius: 20 }}
-            h={200}
-            w={200}
+            my="lg"
+            style={{ borderRadius: 15 }}
+            className={classes.navbar}
           >
-            <Text p={10} ml={2} mt={3}>
+            <Text p={2} ml={3} mt={1} mb={12}>
               Contenido
             </Text>
             {links}

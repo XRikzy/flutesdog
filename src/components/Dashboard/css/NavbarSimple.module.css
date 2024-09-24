@@ -9,10 +9,13 @@
   }
 }
 .navbar {
-    height: rem(700px);
-    width: rem(300px);
+    display: flex;
     padding: 20px;
     flex-direction: column;
+    @media (min-width: 1000px) {
+      height: 200px;
+      width: 200px;
+    }
   }
   
   
