@@ -3,7 +3,10 @@ import { useDisclosure } from "@mantine/hooks";
 import { Route, Routes } from "react-router-dom";
 import { NavBar } from "../components/Navegation/NavBar";
 import { Header } from "../components/Header/Header";
-import { Awards, Clips, Dashboard, LandingPage } from "../components";
+import { Awards } from "./Awards";
+import { LandingPage } from "../components";
+import { Dashboard } from "./Dashboard";
+import { Clips } from "./Clips";
 export const Home = () => {
   const [opened, { toggle }] = useDisclosure();
   return (
@@ -21,7 +24,7 @@ export const Home = () => {
         <Header toggle={toggle} opened={opened} />
       </AppShell.Header>
 
-      <AppShell.Navbar py="md" px={2}>
+      <AppShell.Navbar py="md" px={1}>
         <NavBar />
       </AppShell.Navbar>
 

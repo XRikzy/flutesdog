@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { Home } from "./page/Home";
-import { Awards, Clips, Dashboard, LandingPage } from "./components";
+import { LandingPage } from "../components";
+import { Awards, Clips, Dashboard, Home } from "../pages";
 
 const router = createBrowserRouter([
   {
@@ -25,6 +25,6 @@ const router = createBrowserRouter([
     ],
   },
 ]);
-export function Router() {
+export function AppRouter() {
   return <RouterProvider router={router} />;
 }

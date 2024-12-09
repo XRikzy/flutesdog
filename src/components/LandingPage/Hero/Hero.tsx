@@ -32,7 +32,7 @@ export const Hero = () => {
               className={classes.control}
               mt={40}
             >
-              Get started
+              Ver Clips
             </Button>
           </div>
           <Image

@@ -12,10 +12,10 @@ import {
   Flex,
 } from "@mantine/core";
 import classes from "./TableSort.module.css";
-import { useGetClips } from "../../hooks/Clips/useGetClips";
 import { IconEdit, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
 import { ClipsModalAdd } from "./ClipsModalAdd";
 import { useDisclosure } from "@mantine/hooks";
+import { useGetClips } from "../../../hooks/Clips/useGetClips";
 
 export function ClipsTable() {
   const [scrolled, setScrolled] = useState(false);

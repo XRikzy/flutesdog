@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Box, Flex, Text } from "@mantine/core";
 import { IconClipboard, IconAward, IconScreenshot } from "@tabler/icons-react";
 import classes from "./css/NavbarSimple.module.css";
-import { Loading } from "../Loading";
 import { useGetClips } from "../../hooks/Clips/useGetClips";
-import { ClipsTable } from "./ClipsTable";
+import { Loading } from "../../components/Loading";
+import { ClipsTable } from "./components/ClipsTable";
 const data = [
   { id: "clips", link: "", label: "Clips", icon: IconClipboard },
   { id: "awards", link: "", label: "Awards", icon: IconAward },
@@ -36,11 +36,10 @@ export function Dashboard() {
         <Loading />
       ) : (
         <Flex
-          direction={{ base: "column", sm: "column", md:'row', xl:'row' }}
-          gap={{ base: 'sm', sm: 'lg' }}
+          direction={{ base: "column", sm: "column", md: "row", xl: "row" }}
+          gap={{ base: "sm", sm: "lg" }}
           justify={{ sm: "center" }}
           p={10}
-          
         >
           <Box
             bg="#2e2e2e"
