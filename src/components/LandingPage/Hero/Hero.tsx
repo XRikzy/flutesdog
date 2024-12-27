@@ -43,7 +43,7 @@ export const Hero = () => {
             p={10}
             w="auto"
             fit="contain"
-            src="src\assets\Hero.png"
+            src="/src/assets/Hero.png"
           />
         </div>
       </Container>
