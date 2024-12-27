@@ -43,7 +43,8 @@ export const Hero = () => {
             p={10}
             w="auto"
             fit="contain"
-            src="/src/assets/Hero.png"
+            src="/assets/hero.png"
+            alt="minecraft_pic"
           />
         </div>
       </Container>
