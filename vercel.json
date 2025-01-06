@@ -1,0 +1,12 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "rewrites":  [
+              {"source": "/(.*)", "destination": "/"}
+            ]
+        }
+        
+    ]
+    
+  }
