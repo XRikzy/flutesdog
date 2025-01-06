@@ -10,8 +10,8 @@ export const Header = ({ opened, toggle }: HeaderProps) => {
     <Group h="100%" px="xl">
       <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
       <Title order={3}>Perro Flautas</Title>
-      <Group justify="center" style={{ flex: 1 }}>
-        <Group gap={2} visibleFrom="sm">
+      <Group justify="center" style={{flex: 1}}>
+        <Group gap={2} visibleFrom="sm" style={{fontSize: 19, fontWeight: 500}}>
           <NavBar />
         </Group>
       </Group>

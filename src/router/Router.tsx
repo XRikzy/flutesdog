@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { LandingPage } from "../components";
-import { Awards, Clips, Dashboard, Home } from "../pages";
+import { Screenshots, Clips, Dashboard, Home } from "../pages";
 
 const router = createBrowserRouter([
   {
@@ -15,8 +15,8 @@ const router = createBrowserRouter([
         element: <Clips />,
       },
       {
-        path: "/awards",
-        element: <Awards />,
+        path: "/screenshots",
+        element: <Screenshots />,
       },
       {
         path: "/dashboard",

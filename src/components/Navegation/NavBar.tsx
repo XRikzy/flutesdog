@@ -9,7 +9,7 @@ export const NavBar = () => {
         className={({ isActive }) =>
           isActive ? "navlink navlink-active" : "navlink"
         }
-      >
+        >
         Inicio
       </NavLink>
       <NavLink
@@ -21,12 +21,13 @@ export const NavBar = () => {
         Clips
       </NavLink>
       <NavLink
-        to="awards"
+        to="screenshots"
         className={({ isActive }) =>
+          
           isActive ? "navlink navlink-active" : "navlink"
         }
       >
-        Awards
+        Screenshots
       </NavLink>
       <NavLink
         to="dashboard"

@@ -3,7 +3,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { Route, Routes } from "react-router-dom";
 import { NavBar } from "../components/Navegation/NavBar";
 import { Header } from "../components/Header/Header";
-import { Awards } from "./Awards";
+import { Screenshots } from "./Screenshots";
 import { LandingPage } from "../components";
 import { Dashboard } from "./Dashboard";
 import { Clips } from "./Clips";
@@ -32,7 +32,7 @@ export const Home = () => {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="clips" element={<Clips />} />
-          <Route path="awards" element={<Awards />} />
+          <Route path="screenshots" element={<Screenshots />} />
           <Route path="dashboard" element={<Dashboard />} />
         </Routes>
       </AppShell.Main>

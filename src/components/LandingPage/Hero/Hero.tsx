@@ -1,6 +1,5 @@
 import { Button, Container, Image, Text, Title } from "@mantine/core";
 import classes from "./HeroImageRight.module.css";
-
 export const Hero = () => {
   return (
     <div className={classes.root}>
@@ -10,29 +9,28 @@ export const Hero = () => {
             <Title className={classes.title}>
               Bienvenido a los
               <Text
-                component="span"
                 inherit
+                component="span"
                 variant="gradient"
                 gradient={{ from: "white", to: "cyan" }}
                 ml={10}
               >
                 perro flautas
-              </Text>{" "}
+              </Text>{" "}              
             </Title>
-
             <Text className={classes.description} mt={30}>
               En este lugar veras los mejores momentos con mis amigos en clips y
               capturas de pantalla graciosas
             </Text>
-
             <Button
               variant="gradient"
               gradient={{ from: "blue", to: "cyan" }}
               size="xl"
               className={classes.control}
               mt={40}
+
             >
-              Ver Clips
+              Ver clips
             </Button>
           </div>
           <Image
