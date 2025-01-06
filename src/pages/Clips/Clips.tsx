@@ -4,7 +4,6 @@ import {
   Badge,
   Container,
   Group,
-  Input,
   Rating,
   rem,
   SimpleGrid,
