@@ -7,13 +7,16 @@ type HeaderProps = {
 };
 export const Header = ({ opened, toggle }: HeaderProps) => {
   return (
-    <Group h="100%" px="xl">
+    <Group h="100%" px="xl" m="0">
       <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
       <Title order={3}>Perro Flautas</Title>
-      <Group justify="center" style={{flex: 1}}>
-        <Group gap={2} visibleFrom="sm" style={{fontSize: 19, fontWeight: 500}}>
-          <NavBar />
-        </Group>
+      <Group
+        gap={2}
+        visibleFrom="sm"
+        style={{ fontSize: 18, fontWeight: 500, flex: 1 }}
+        justify="center"
+      >
+        <NavBar />
       </Group>
       <Group justify="flex-end">
         <ActionIcon
