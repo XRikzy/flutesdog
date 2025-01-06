@@ -19,7 +19,7 @@
   
   .image {
     @media screen and (max-width: 600px) {
-      visibility: hidden;
+      visibility: visible;
     }
   }
   
@@ -45,16 +45,16 @@
   
     @media (max-width: $mantine-breakpoint-md) {
       max-width: 100%;
-      font-size: rem(34px);
+      font-size: rem(50px);
       line-height: 1.15;
     }
   }
   
   .description {
     color: var(--mantine-color-white);
-    opacity: 0.75;
+    opacity: 0.80;
     max-width: rem(500px);
-  
+
     @media (max-width: $mantine-breakpoint-md) {
       max-width: 100%;
     }

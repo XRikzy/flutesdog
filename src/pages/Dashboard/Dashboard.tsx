@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, Flex, Text } from "@mantine/core";
+import { Box, Container, Flex, Text } from "@mantine/core";
 import { IconClipboard, IconAward, IconScreenshot } from "@tabler/icons-react";
 import classes from "./css/NavbarSimple.module.css";
 import { useGetClips } from "../../hooks/Clips/useGetClips";
@@ -35,25 +35,27 @@ export function Dashboard() {
       {loading ? (
         <Loading />
       ) : (
-        <Flex
-          direction={{ base: "column", sm: "column", md: "row", xl: "row" }}
-          gap={{ base: "sm", sm: "lg" }}
-          justify={{ sm: "center" }}
-          p={10}
-        >
-          <Box
-            bg="#2e2e2e"
-            my="lg"
-            style={{ borderRadius: 15 }}
-            className={classes.navbar}
+        <Container size="lg">
+          <Flex
+            direction={{ base: "column", sm: "column", md: "row", xl: "row" }}
+            gap={{ base: "sm", sm: "lg" }}
+            justify={{ sm: "center" }}
+            p={10}
           >
-            <Text p={2} ml={3} mt={1} mb={12}>
-              Contenido
-            </Text>
-            {links}
-          </Box>
-          <ClipsTable />
-        </Flex>
+            <Box
+              bg="#2e2e2e"
+              my="lg"
+              style={{ borderRadius: 15 }}
+              className={classes.navbar}
+            >
+              <Text p={2} ml={3} mt={1} mb={12}>
+                Contenido
+              </Text>
+              {links}
+            </Box>
+            <ClipsTable />
+          </Flex>
+        </Container>
       )}
     </>
   );

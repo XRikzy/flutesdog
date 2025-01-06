@@ -14,13 +14,13 @@ export const Hero = () => {
                 variant="gradient"
                 gradient={{ from: "white", to: "cyan" }}
                 ml={10}
+                
               >
                 perro flautas
               </Text>{" "}              
             </Title>
-            <Text className={classes.description} mt={30}>
-              En este lugar veras los mejores momentos con mis amigos en clips y
-              capturas de pantalla graciosas
+            <Text className={classes.description} mt={20}>
+              Mas que amistades de internet una familia donde todos se burlan de jose
             </Text>
             <Button
               variant="gradient"
@@ -34,7 +34,7 @@ export const Hero = () => {
             </Button>
           </div>
           <Image
-            className={classes.image}
+            visibleFrom="sm"
             radius="xl"
             h={300}
             mt={30}
