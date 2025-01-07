@@ -2,6 +2,7 @@ import {
   AspectRatio,
   Autocomplete,
   Badge,
+  Button,
   Container,
   Group,
   Rating,
@@ -12,9 +13,12 @@ import {
 
 import { useGetClips } from "../../hooks/Clips/useGetClips";
 import { Loading } from "../../components/Loading";
-import {  IconSearch } from "@tabler/icons-react";
+import { IconPlus, IconSearch } from "@tabler/icons-react";
+import { ClipsModalAdd } from "../Dashboard/components";
+import { useDisclosure } from "@mantine/hooks";
 export const Clips = () => {
   const { data, loading } = useGetClips();
+  const [opened, { open, close }] = useDisclosure(false);
   const autocomplete = data.map(({ title }) => {
     return title;
   });
@@ -22,13 +26,28 @@ export const Clips = () => {
   return (
     <div>
       <Container size="sm" p={{ base: "sm", sm: "md" }} mb={10}>
-        <Autocomplete
-          comboboxProps={{}}
-          data={autocomplete}
-          radius="md"
-          placeholder="Buscar"
-          rightSection={icon}
-        />
+        <Group justify="center">
+          <Autocomplete
+            comboboxProps={{
+              transitionProps: { transition: "fade", duration: 150 },
+            }}
+            data={autocomplete}
+            radius="md"
+            placeholder="Buscar"
+            limit={5}
+            rightSection={icon}
+            flex={1}
+          />
+          <Button
+            onClick={open}
+            leftSection={
+              <IconPlus size={14} />
+            }
+          >
+            Nuevo clip
+          </Button>
+          <ClipsModalAdd opened={opened} close={close} />
+        </Group>
       </Container>
       {loading ? (
         <Loading />

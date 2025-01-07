@@ -1,6 +1,6 @@
 import { IconCookie, IconGauge, IconUser } from "@tabler/icons-react";
 import { Hero } from "./Hero/Hero";
-import classes from "./LandingPage.module.css"
+import classes from "./LandingPage.module.css";
 import {
   Badge,
   Card,
@@ -52,22 +52,25 @@ export const LandingPage = () => {
   ));
   return (
     <>
-      <Hero />
-      
       <Container size="lg" py="xl">
+        <Hero />
         <Group justify="center">
           <Badge variant="filled" size="lg">
             ¿Comó empezó esto?
           </Badge>
         </Group>
 
-        <Title order={2} style={{
+        <Title
+          order={2}
+          style={{
             base: { fontSize: "34px", fontWeight: 900 },
             sm: { fontSize: 24 },
-          }}  ta="center" mt="sm">
+          }}
+          ta="center"
+          mt="sm"
+        >
           ¡No lo sé!
         </Title>
-
         <Text
           c="dimmed"
           style={{
@@ -77,7 +80,8 @@ export const LandingPage = () => {
           ta="center"
           mt="md"
         >
-          Simplemente un dia me dio por crear una pagina para poner clips cuando me divierto con mis amigos
+          Simplemente un dia me dio por crear una pagina para poner clips cuando
+          me divierto con mis amigos
         </Text>
 
         <SimpleGrid cols={{ base: 1, md: 3 }} spacing="xl" mt={50}>
