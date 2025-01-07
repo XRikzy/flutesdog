@@ -20,7 +20,7 @@ export const Header = ({ opened, toggle }: HeaderProps) => {
         <Group
           gap={3}
           visibleFrom="sm"
-          style={{ fontSize: 18, fontWeight: 500, flex: 1 }}
+          style={{ fontSize: 18, fontWeight: 400, flex: 1 }}
           justify="flex-end"
         >
           <NavBar />
