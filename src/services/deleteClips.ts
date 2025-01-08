@@ -1,7 +1,6 @@
-import { DeleteClipValue } from "../constants/documents";
 import { db, deleteDoc, doc } from "../webservice/firebase";
 
-export const handleDelete = async ({ id }: DeleteClipValue) => {
+export const handleDelete = async (id: string) => {
   try {
     await deleteDoc(doc(db, "Clips", id));
   } catch (error) {

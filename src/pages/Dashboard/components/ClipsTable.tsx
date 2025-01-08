@@ -22,6 +22,8 @@ export function ClipsTable() {
   const [scrolled, setScrolled] = useState(false);
   const [opened, { open, close }] = useDisclosure(false);
   const [openDelete, setOpenDelete] = useState(false);
+  const [id, setId] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
 
   const { data, refetch } = useGetClips();
   const handleOpenDelete = () => {
@@ -30,7 +32,6 @@ export function ClipsTable() {
   const handleCloseDelete = () => {
     setOpenDelete(false);
   };
-
   const rows = data.map((row) => (
     <Table.Tr key={row.id}>
       <Table.Td>{row.title}</Table.Td>
@@ -72,17 +73,13 @@ export function ClipsTable() {
               radius="lg"
               onClick={() => {
                 handleOpenDelete();
-                console.log(row.id);
+                setId(row.id);
+                setTitle(row.title);
               }}
             >
               <IconTrash style={{ width: "70%", height: "70%" }} stroke={2} />
             </ActionIcon>
           </Tooltip>
-          <ClipsModalDelete
-            opened={openDelete}
-            close={handleCloseDelete}
-            refetch={refetch}
-          />
         </Flex>
       </Table.Td>
     </Table.Tr>
@@ -108,7 +105,15 @@ export function ClipsTable() {
                 <IconPlus style={{ width: "70%", height: "70%" }} stroke={2} />
               </ActionIcon>
             </Tooltip>
+            {/* Aqui van los componentes modal */}
             <ClipsModalAdd opened={opened} close={close} refetch={refetch} />
+            <ClipsModalDelete
+              opened={openDelete}
+              close={handleCloseDelete}
+              refetch={refetch}
+              id={id}
+              title={title}
+            />
           </Group>
           <Table miw={800} verticalSpacing="lg" horizontalSpacing="sm">
             <Table.Thead

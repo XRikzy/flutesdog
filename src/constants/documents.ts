@@ -12,5 +12,4 @@ export type AddClipValues = {
 
 export type DeleteClipValue = {
   id: string;
-  title: string;
 };
