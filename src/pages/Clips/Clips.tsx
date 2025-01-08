@@ -17,7 +17,7 @@ import { IconPlus, IconSearch } from "@tabler/icons-react";
 import { ClipsModalAdd } from "../Dashboard/components";
 import { useDisclosure } from "@mantine/hooks";
 export const Clips = () => {
-  const { data, loading } = useGetClips();
+  const { data, loading, refetch } = useGetClips();
   const [opened, { open, close }] = useDisclosure(false);
   const autocomplete = data.map(({ title }) => {
     return title;
@@ -38,15 +38,10 @@ export const Clips = () => {
             rightSection={icon}
             flex={1}
           />
-          <Button
-            onClick={open}
-            leftSection={
-              <IconPlus size={14} />
-            }
-          >
+          <Button onClick={open} leftSection={<IconPlus size={14} />}>
             Nuevo clip
           </Button>
-          <ClipsModalAdd opened={opened} close={close} />
+          <ClipsModalAdd opened={opened} close={close} refetch={refetch} />
         </Group>
       </Container>
       {loading ? (

@@ -2,24 +2,21 @@ import { useState } from "react";
 import { AddClipValues } from "../../constants/documents";
 import { handleSave } from "../../services/addClips";
 export const useAddClips = () => {
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [errorState, seterrorState] = useState<boolean>(false);
   const addData = async (data: AddClipValues) => {
-    setLoading(false);
+    setLoading(true);
     setError(null);
     try {
       await handleSave(data);
     } catch (err) {
-      setError("Parece que no pudimos crear el clip: " + err);
-      seterrorState(true);
+      setError(`Parece que no pudimos crear el clip:  ${err}`);
     } finally {
-      setLoading(true);
+      setLoading(false);
     }
   };
   return {
     addData,
-    errorState,
     error,
     loading,
   };

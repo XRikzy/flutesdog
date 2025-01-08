@@ -4,35 +4,41 @@ import { notifications } from "@mantine/notifications";
 import { AddClipValues } from "../../../constants/documents";
 import { useAddClips } from "../../../hooks/Clips/useAddClips";
 import { useClipsForm } from "../hook/useClipsForm";
+import { useCallback } from "react";
 
 type Props = {
   opened: boolean;
   close: () => void;
+  refetch: () => void;
 };
 
-export const ClipsModalAdd = ({ opened, close }: Props) => {
+export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
   const { form } = useClipsForm();
-  const { addData, error, errorState, loading } = useAddClips();
-  const handleModalsCancel = () => {
+  const { addData, error, loading } = useAddClips();
+  const handleModalsCancel = useCallback(() => {
     close();
     form.reset();
-  };
-  const handleButtonState = (values: AddClipValues) => {
-    if (loading) {
-      addData(values);
-      notifications.show({
-        title: "Lo datos se han agregado",
-        message: "Visita los clips para ver el nuevo clip!!",
-      });
-      close();
-    }
-    if (errorState) {
-      notifications.show({
-        title: "Oops paso algo",
-        message: error,
-      });
-    }
-  };
+  }, [close, form]);
+
+  const handleButtonState = useCallback(
+    (values: AddClipValues) => {
+      try {
+        addData(values);
+        refetch();
+        notifications.show({
+          title: "Lo datos se han agregado",
+          message: "Visita los clips para ver el nuevo clip!!",
+        });
+        handleModalsCancel();
+      } catch {
+        notifications.show({
+          title: "Oops paso algo",
+          message: error,
+        });
+      }
+    },
+    [addData, refetch, handleModalsCancel, error]
+  );
   return (
     <Modal
       opened={opened}
@@ -41,7 +47,7 @@ export const ClipsModalAdd = ({ opened, close }: Props) => {
       centered
       radius={15}
     >
-      <form onSubmit={form.onSubmit((values) => handleButtonState(values))}>
+      <form onSubmit={form.onSubmit(handleButtonState)}>
         <TextInput
           title="Agregar titulo"
           label="Titulo del clip"
@@ -67,7 +73,7 @@ export const ClipsModalAdd = ({ opened, close }: Props) => {
           <Button onClick={handleModalsCancel} variant="default" color="gray">
             Cancelar
           </Button>
-          <Button type="submit" loading={!loading}>
+          <Button type="submit" loading={loading}>
             Agregar Clip
           </Button>
         </Group>
