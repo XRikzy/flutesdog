@@ -13,14 +13,24 @@ import {
 } from "@mantine/core";
 import classes from "./TableSort.module.css";
 import { IconEdit, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
-import { ClipsModalAdd } from "./ClipsModalAdd";
+import { ClipsModalAdd } from "./Modals/ClipsModalAdd";
 import { useDisclosure } from "@mantine/hooks";
 import { useGetClips } from "../../../hooks/Clips/useGetClips";
+import { ClipsModalDelete } from "./Modals/ClipsModalDelete";
 
 export function ClipsTable() {
   const [scrolled, setScrolled] = useState(false);
   const [opened, { open, close }] = useDisclosure(false);
+  const [openDelete, setOpenDelete] = useState(false);
+
   const { data, refetch } = useGetClips();
+  const handleOpenDelete = () => {
+    setOpenDelete(true);
+  };
+  const handleCloseDelete = () => {
+    setOpenDelete(false);
+  };
+
   const rows = data.map((row) => (
     <Table.Tr key={row.id}>
       <Table.Td>{row.title}</Table.Td>
@@ -56,10 +66,23 @@ export function ClipsTable() {
             </ActionIcon>
           </Tooltip>
           <Tooltip label="Eliminar">
-            <ActionIcon color="red" size="lg" radius="lg">
+            <ActionIcon
+              color="red"
+              size="lg"
+              radius="lg"
+              onClick={() => {
+                handleOpenDelete();
+                console.log(row.id);
+              }}
+            >
               <IconTrash style={{ width: "70%", height: "70%" }} stroke={2} />
             </ActionIcon>
           </Tooltip>
+          <ClipsModalDelete
+            opened={openDelete}
+            close={handleCloseDelete}
+            refetch={refetch}
+          />
         </Flex>
       </Table.Td>
     </Table.Tr>

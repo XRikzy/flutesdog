@@ -1,2 +1,2 @@
-export * from './ClipsModalAdd'
+export * from './Modals/ClipsModalAdd'
 export * from './ClipsTable'

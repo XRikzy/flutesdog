@@ -9,3 +9,8 @@ export type AddClipValues = {
   embed: string;
   tag: string[];
 };
+
+export type DeleteClipValue = {
+  id: string;
+  title: string;
+};

@@ -1,12 +1,12 @@
 import { Button, Group, Modal, TagsInput, TextInput } from "@mantine/core";
 
 import { notifications } from "@mantine/notifications";
-import { AddClipValues } from "../../../constants/documents";
-import { useAddClips } from "../../../hooks/Clips/useAddClips";
-import { useClipsForm } from "../hook/useClipsForm";
+import { AddClipValues } from "../../../../constants/documents";
+import { useAddClips } from "../../../../hooks/Clips/useAddClips";
+import { useClipsForm } from "../../hook/useClipsForm";
 import { useCallback } from "react";
 
-type Props = {
+export type Props = {
   opened: boolean;
   close: () => void;
   refetch: () => void;
