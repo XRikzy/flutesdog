@@ -1,8 +1,9 @@
 import { useForm } from "@mantine/form";
+import { regex } from "../../../utils/regex";
+
+
 
 export const useClipsForm = () => {
-  const regex: RegExp =
-    /^https?:\/\/(www\.)?youtube\.com\/embed\//;
   const form = useForm({
     mode: "uncontrolled",
     initialValues: {

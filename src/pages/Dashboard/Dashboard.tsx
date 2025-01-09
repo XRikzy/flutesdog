@@ -40,7 +40,7 @@ export function Dashboard() {
             direction={{ base: "column", sm: "column", md: "row", xl: "row" }}
             gap={{ base: "sm", sm: "lg" }}
             justify={{ sm: "center" }}
-            p={10}
+            
           >
             <Box
               bg="#2e2e2e"

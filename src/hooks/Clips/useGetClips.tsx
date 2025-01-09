@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { Ivideos } from "../../constants/documents";
-import { fetchData } from "../../services/getClips";
+import { getClips } from "../../services/getClips";
 export const useGetClips = () => {
   const [data, setData] = useState<Ivideos[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const loadDocuments = useCallback(async () => {
     try {
-      const data = await fetchData();
+      const data = await getClips();
       setData(data);
     } catch {
       setError("Error Fetching documents");

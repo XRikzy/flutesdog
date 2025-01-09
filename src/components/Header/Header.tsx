@@ -14,7 +14,7 @@ type HeaderProps = {
 export const Header = ({ opened, toggle }: HeaderProps) => {
   return (
     <Container size="lg">
-      <Group h="50px">
+      <Group h="40px">
         <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
         <Title order={3}>Perro Flautas</Title>
         <Group

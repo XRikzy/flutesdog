@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AddClipValues } from "../../constants/documents";
-import { handleSave } from "../../services/addClips";
+import { AddClips } from "../../services/addClips";
 export const useAddClips = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -8,7 +8,7 @@ export const useAddClips = () => {
     setLoading(true);
     setError(null);
     try {
-      await handleSave(data);
+      await AddClips(data);
     } catch (err) {
       setError(`Parece que no pudimos crear el clip:  ${err}`);
     } finally {

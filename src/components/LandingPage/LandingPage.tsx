@@ -52,7 +52,7 @@ export const LandingPage = () => {
   ));
   return (
     <>
-      <Container size="lg" py="xl">
+      <Container size="lg" py="lg">
         <Hero />
         <Group justify="center">
           <Badge variant="filled" size="lg">
@@ -83,7 +83,7 @@ export const LandingPage = () => {
           Simplemente un dia me dio por crear una pagina para poner clips cuando
           me divierto con mis amigos
         </Text>
-
+        
         <SimpleGrid cols={{ base: 1, md: 3 }} spacing="xl" mt={50}>
           {features}
         </SimpleGrid>

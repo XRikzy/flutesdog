@@ -17,21 +17,31 @@ import { ClipsModalAdd } from "./Modals/ClipsModalAdd";
 import { useDisclosure } from "@mantine/hooks";
 import { useGetClips } from "../../../hooks/Clips/useGetClips";
 import { ClipsModalDelete } from "./Modals/ClipsModalDelete";
-
+// import { ClipModalEdit } from "./Modals/ClipModalEdit";
+import { useDeleteClips } from "../../../hooks/Clips/useDeleteClips";
+// import { EditVideos, Ivideos } from "../../../constants/documents";
 export function ClipsTable() {
   const [scrolled, setScrolled] = useState(false);
   const [opened, { open, close }] = useDisclosure(false);
-  const [openDelete, setOpenDelete] = useState(false);
-  const [id, setId] = useState<string>("");
-  const [title, setTitle] = useState<string>("");
-
   const { data, refetch } = useGetClips();
-  const handleOpenDelete = () => {
-    setOpenDelete(true);
-  };
-  const handleCloseDelete = () => {
-    setOpenDelete(false);
-  };
+  const {
+    handleOpenDelete,
+    handleCloseDelete,
+    setId,
+    setTitle,
+    title,
+    id,
+    openDelete,
+  } = useDeleteClips();
+
+  // const [openEdit, setOpenEdit] = useState<boolean>(false);
+  // const [editData, setEditData] = useState<EditVideos | undefined>();
+  // const handleOpenEdit = () => {
+  //   setOpenEdit(true);
+  // };
+  // const handleCloseEdit = () => {
+  //   setOpenEdit(false);
+  // };
   const rows = data.map((row) => (
     <Table.Tr key={row.id}>
       <Table.Td>{row.title}</Table.Td>
@@ -62,7 +72,14 @@ export function ClipsTable() {
           gap={{ sm: "xs", md: "5px" }}
         >
           <Tooltip label="Editar">
-            <ActionIcon size="lg" radius="lg">
+            <ActionIcon
+              size="lg"
+              radius="lg"
+              onClick={() => {
+                // handleOpenEdit();
+                // setEditData(row);
+              }}
+            >
               <IconEdit style={{ width: "70%", height: "70%" }} stroke={2} />
             </ActionIcon>
           </Tooltip>
@@ -114,6 +131,12 @@ export function ClipsTable() {
               id={id}
               title={title}
             />
+            {/* <ClipModalEdit
+              opened={openEdit}
+              close={handleCloseEdit}
+              refetch={refetch}
+              data={editData}
+            /> */}
           </Group>
           <Table miw={800} verticalSpacing="lg" horizontalSpacing="sm">
             <Table.Thead

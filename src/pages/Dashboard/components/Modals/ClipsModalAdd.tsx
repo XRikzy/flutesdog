@@ -26,8 +26,8 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
         addData(values);
         refetch();
         notifications.show({
-          title: "Lo datos se han agregado",
-          message: "Visita los clips para ver el nuevo clip!!",
+          title: "Un clip agregado correctamente",
+          message: "Un nuevo clip se ha agredao a la pagina!!",
         });
         handleModalsCancel();
       } catch {

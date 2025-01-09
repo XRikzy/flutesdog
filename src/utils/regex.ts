@@ -1,0 +1,1 @@
+export const regex: RegExp = /^https?:\/\/(www\.)?youtube\.com\/embed\//;
