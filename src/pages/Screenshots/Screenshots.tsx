@@ -67,16 +67,7 @@ export const Screenshots = () => {
           }
           hidden
         />
-        <Container size="lg" p={{ base: "sm", sm: "md" }}>
-          <Blockquote
-            color="red"
-            cite="– Ricardo"
-            icon={<IconInfoCircle />}
-            mt="xl"
-            mb="xl"
-          >
-            Por favor no suban nada cuestionable :c
-          </Blockquote>
+        <Container size="md" p={{ base: "sm", sm: "md" }}>
           <Group justify="right" pb={10} mb={5}>
             <FileButton onChange={setFile} accept="image/png,image/jpeg">
               {(props) => (
@@ -91,12 +82,24 @@ export const Screenshots = () => {
               )}
             </FileButton>
           </Group>
+
           {progress > 0 && (
-            <div style={{ marginTop: 10 }}>
+            <div style={{ padding: 5, marginBottom: 5 }}>
               <Progress value={progress} />
             </div>
           )}
 
+          <Blockquote
+            color="red"
+            cite="– Ricardo"
+            icon={<IconInfoCircle />}
+            mt="xl"
+            mb="xl"
+          >
+            Por favor no suban nada cuestionable :c
+          </Blockquote>
+        </Container>
+        <Container size="lg" p={{ base: "sm", sm: "md" }}>
           {loading ? (
             <Loading />
           ) : (
