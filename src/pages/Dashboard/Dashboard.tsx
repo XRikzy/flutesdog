@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { Box, Container, Flex, Text } from "@mantine/core";
-import { IconClipboard, IconAward, IconScreenshot } from "@tabler/icons-react";
+import { IconClipboard, IconScreenshot } from "@tabler/icons-react";
 import classes from "./css/NavbarSimple.module.css";
 import { useGetClips } from "../../hooks/Clips/useGetClips";
 import { Loading } from "../../components/Loading";
 import { ClipsTable } from "./components/ClipsTable";
 const data = [
   { id: "clips", link: "", label: "Clips", icon: IconClipboard },
-  { id: "awards", link: "", label: "Awards", icon: IconAward },
   { id: "screenshots", link: "", label: "Screenshots", icon: IconScreenshot },
 ];
 
@@ -40,11 +39,10 @@ export function Dashboard() {
             direction={{ base: "column", sm: "column", md: "row", xl: "row" }}
             gap={{ base: "sm", sm: "lg" }}
             justify={{ sm: "center" }}
-            
           >
             <Box
               bg="#2e2e2e"
-              my="lg"
+              my="md"
               style={{ borderRadius: 15 }}
               className={classes.navbar}
             >

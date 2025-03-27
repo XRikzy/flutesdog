@@ -15,3 +15,7 @@ export type AddClipValues = {
   embed: string;
   tag: string[];
 };
+export type AddScreenShotValue = {
+  name: string;
+  file: File
+}

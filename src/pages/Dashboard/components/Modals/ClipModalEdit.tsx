@@ -44,7 +44,7 @@ export const ClipModalEdit = ({ opened, close, refetch, data }: EditProps) => {
     <Modal
       opened={opened}
       onClose={close}
-      title="Agregar clip"
+      title="Editar clip"
       centered
       radius={15}
     >

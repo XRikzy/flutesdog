@@ -6,7 +6,6 @@ import {
   Button,
   Container,
   Group,
-  Rating,
   rem,
   SimpleGrid,
   Title,
@@ -46,7 +45,6 @@ export const Clips = () => {
     } catch {
       console.log(error);
     }
-    console.log(value);
   };
 
   const icon = (
@@ -76,6 +74,9 @@ export const Clips = () => {
             rightSection={icon}
             flex={1}
             onChange={(values) => setClipTitle(values)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSearchClipByTerm(clipTitle);
+            }}
           />
           <Button
             onClick={open}
@@ -108,9 +109,6 @@ export const Clips = () => {
                     <Title order={4} lineClamp={2}>
                       {title}
                     </Title>
-                    <Group gap="xs" mt={4}>
-                      <Rating defaultValue={2} fractions={2} />
-                    </Group>
                     <Group gap="xs" mt={4}>
                       {tag.map((name, index) => (
                         <Badge key={index} variant="dot" color="red">
@@ -145,9 +143,6 @@ export const Clips = () => {
                     <Title order={4} lineClamp={2}>
                       {title}
                     </Title>
-                    <Group gap="xs" mt={4}>
-                      <Rating defaultValue={2} fractions={2} />
-                    </Group>
                     <Group gap="xs" mt={4}>
                       {tag.map((name, index) => (
                         <Badge key={index} variant="dot" color="red">
