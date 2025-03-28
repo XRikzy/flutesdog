@@ -6,14 +6,14 @@ import {
   Group,
   Image,
   Progress,
-  SimpleGrid,
-} from "@mantine/core";
-import { IKContext, IKUpload } from "imagekitio-react";
-import { Loading } from "../../components/Loading";
-import { useAddScreenshot } from "./hook/useAddScreenshot";
-import { IconInfoCircle, IconPlus } from "@tabler/icons-react";
-import { useCallback, useRef, useState } from "react";
-import { notifications } from "@mantine/notifications";
+  SimpleGrid
+} from '@mantine/core'
+import { IKContext, IKUpload } from 'imagekitio-react'
+import { Loading } from '../../components/Loading'
+import { useAddScreenshot } from './hook/useAddScreenshot'
+import { IconInfoCircle, IconPlus } from '@tabler/icons-react'
+import { useCallback, useRef, useState } from 'react'
+import { notifications } from '@mantine/notifications'
 
 export const Screenshots = () => {
   const {
@@ -22,25 +22,25 @@ export const Screenshots = () => {
     loading,
     publicKey,
     urlEndpoint,
-    fetchImages,
-  } = useAddScreenshot();
-  const IKUploadRef = useRef<HTMLInputElement | null>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [progress, setProgress] = useState<number>(0);
+    fetchImages
+  } = useAddScreenshot()
+  const IKUploadRef = useRef<HTMLInputElement | null>(null)
+  const [file, setFile] = useState<File | null>(null)
+  const [progress, setProgress] = useState<number>(0)
   const handleOnSucces = useCallback(() => {
     try {
-      fetchImages();
+      fetchImages()
       notifications.show({
-        title: "Agregado!",
-        message: "Una nuevo screenshot se ha agregado a la pagina!!",
-      });
+        title: 'Agregado!',
+        message: 'Una nuevo screenshot se ha agregado a la pagina!!'
+      })
       setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+        window.location.reload()
+      }, 1000)
     } catch {
-      console.error("Ha ocurrido un error");
+      console.error('Ha ocurrido un error')
     }
-  }, [fetchImages]);
+  }, [fetchImages])
   return (
     <div>
       <IKContext
@@ -55,19 +55,20 @@ export const Screenshots = () => {
           folder="Flutesdog"
           onUploadProgress={(progress) => {
             const pogressPercent =
-              Math.round(progress.loaded / progress.total) * 100;
-            setProgress(pogressPercent);
+              Math.round(progress.loaded / progress.total) * 100
+            setProgress(pogressPercent)
           }}
           onSuccess={handleOnSucces}
           onError={() =>
             notifications.show({
-              title: "Oops paso algo",
-              message: "Parece que no pudimos subir tu imagen :c",
+              title: 'Oops paso algo',
+              message: 'Parece que no pudimos subir tu imagen :c'
             })
           }
           hidden
+          accept="image/png,image/jpeg"
         />
-        <Container size="md" p={{ base: "sm", sm: "md" }}>
+        <Container size="md" p={{ base: 'sm', sm: 'md' }}>
           <Group justify="right" pb={10} mb={5}>
             <FileButton onChange={setFile} accept="image/png,image/jpeg">
               {(props) => (
@@ -75,7 +76,7 @@ export const Screenshots = () => {
                   {...props}
                   onClick={() => IKUploadRef.current?.click()}
                   leftSection={<IconPlus size={14} />}
-                  radius={"lg"}
+                  radius={'lg'}
                 >
                   Nueva Screenshot
                 </Button>
@@ -99,7 +100,7 @@ export const Screenshots = () => {
             Por favor no suban nada cuestionable :c
           </Blockquote>
         </Container>
-        <Container size="lg" p={{ base: "sm", sm: "md" }}>
+        <Container size="lg" p={{ base: 'sm', sm: 'md' }}>
           {loading ? (
             <Loading />
           ) : (
@@ -120,5 +121,5 @@ export const Screenshots = () => {
         </Container>
       </IKContext>
     </div>
-  );
-};
+  )
+}

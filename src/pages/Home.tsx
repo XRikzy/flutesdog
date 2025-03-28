@@ -1,21 +1,21 @@
-import { AppShell } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import { Route, Routes } from "react-router-dom";
-import { NavBar } from "../components/Navegation/NavBar";
-import { Header } from "../components/Header/Header";
-import { Screenshots } from "./Screenshots";
-import { LandingPage } from "../components";
-import { Dashboard } from "./Dashboard";
-import { Clips } from "./Clips";
+import { AppShell } from '@mantine/core'
+import { useDisclosure } from '@mantine/hooks'
+import { Route, Routes } from 'react-router-dom'
+import { NavBar } from '../components/Navegation/NavBar'
+import { Header } from '../components/Header/Header'
+import { Screenshots } from './Screenshots'
+import { LandingPage } from '../components'
+import { Dashboard } from './Dashboard'
+import { Clips } from './Clips'
 export const Home = () => {
-  const [opened, { toggle }] = useDisclosure();
+  const [opened, { toggle }] = useDisclosure()
   return (
     <AppShell
       header={{ height: 60 }}
       navbar={{
         width: 300,
-        breakpoint: "sm",
-        collapsed: { desktop: true, mobile: !opened },
+        breakpoint: 'sm',
+        collapsed: { desktop: true, mobile: !opened }
       }}
       padding="sm"
       withBorder={false}
@@ -37,5 +37,5 @@ export const Home = () => {
         </Routes>
       </AppShell.Main>
     </AppShell>
-  );
-};
+  )
+}
