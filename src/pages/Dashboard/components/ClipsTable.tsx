@@ -1,5 +1,5 @@
-import cx from "clsx";
-import { useState } from "react";
+import cx from 'clsx'
+import { useState } from 'react'
 import {
   Table,
   ScrollArea,
@@ -10,20 +10,21 @@ import {
   Tooltip,
   Group,
   Flex,
-} from "@mantine/core";
-import classes from "./TableSort.module.css";
-import { IconEdit, IconPlus, IconSearch, IconTrash } from "@tabler/icons-react";
-import { ClipsModalAdd } from "./Modals/ClipsModalAdd";
-import { useDisclosure } from "@mantine/hooks";
-import { useGetClips } from "../../../hooks/Clips/useGetClips";
-import { ClipsModalDelete } from "./Modals/ClipsModalDelete";
+  Box
+} from '@mantine/core'
+import classes from './TableSort.module.css'
+import { IconEdit, IconPlus, IconSearch, IconTrash } from '@tabler/icons-react'
+import { ClipsModalAdd } from './Modals/ClipsModalAdd'
+import { useDisclosure } from '@mantine/hooks'
+import { useGetClips } from '../../../hooks/Clips/useGetClips'
+import { ClipsModalDelete } from './Modals/ClipsModalDelete'
 // import { ClipModalEdit } from "./Modals/ClipModalEdit";
-import { useDeleteClips } from "../../../hooks/Clips/useDeleteClips";
+import { useDeleteClips } from '../../../hooks/Clips/useDeleteClips'
 // import { EditVideos, Ivideos } from "../../../constants/documents";
 export function ClipsTable() {
-  const [scrolled, setScrolled] = useState(false);
-  const [opened, { open, close }] = useDisclosure(false);
-  const { data, refetch } = useGetClips();
+  const [scrolled, setScrolled] = useState(false)
+  const [opened, { open, close }] = useDisclosure(false)
+  const { data, refetch } = useGetClips()
   const {
     handleOpenDelete,
     handleCloseDelete,
@@ -31,8 +32,8 @@ export function ClipsTable() {
     setTitle,
     title,
     id,
-    openDelete,
-  } = useDeleteClips();
+    openDelete
+  } = useDeleteClips()
 
   // const [openEdit, setOpenEdit] = useState<boolean>(false);
   // const [editData, setEditData] = useState<EditVideos | undefined>();
@@ -51,7 +52,7 @@ export function ClipsTable() {
             key={index}
             variant="dot"
             color="red"
-            style={{ marginRight: "5px" }}
+            style={{ marginRight: '5px' }}
           >
             {name}
           </Badge>
@@ -63,13 +64,13 @@ export function ClipsTable() {
           title="Video player"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
-          style={{ border: "0", borderRadius: "12px" }}
+          style={{ border: '0', borderRadius: '12px' }}
         />
       </Table.Td>
       <Table.Td>
         <Flex
-          direction={{ base: "column", md: "row" }}
-          gap={{ sm: "xs", md: "5px" }}
+          direction={{ base: 'column', md: 'row' }}
+          gap={{ sm: 'xs', md: '5px' }}
         >
           <Tooltip label="Editar">
             <ActionIcon
@@ -80,7 +81,7 @@ export function ClipsTable() {
                 // setEditData(row);
               }}
             >
-              <IconEdit style={{ width: "70%", height: "70%" }} stroke={2} />
+              <IconEdit style={{ width: '70%', height: '70%' }} stroke={2} />
             </ActionIcon>
           </Tooltip>
           <Tooltip label="Eliminar">
@@ -89,24 +90,24 @@ export function ClipsTable() {
               size="lg"
               radius="lg"
               onClick={() => {
-                handleOpenDelete();
-                setId(row.id);
-                setTitle(row.title);
+                handleOpenDelete()
+                setId(row.id)
+                setTitle(row.title)
               }}
             >
-              <IconTrash style={{ width: "70%", height: "70%" }} stroke={2} />
+              <IconTrash style={{ width: '70%', height: '70%' }} stroke={2} />
             </ActionIcon>
           </Tooltip>
         </Flex>
       </Table.Td>
     </Table.Tr>
-  ));
+  ))
 
   return (
     <>
-      <Group style={{ justifyContent: "center" }}>
+      <Group style={{ justifyContent: 'center' }}>
         <ScrollArea onScrollPositionChange={({ x }) => setScrolled(x !== 0)}>
-          <Group style={{ justifyContent: "flex-end" }}>
+          <Group style={{ justifyContent: 'flex-end' }}>
             <TextInput
               placeholder="Busca el titulo"
               leftSection={
@@ -118,8 +119,8 @@ export function ClipsTable() {
               flex={1}
             />
             <Tooltip label="Agregar nuevo clip">
-              <ActionIcon onClick={open}>
-                <IconPlus style={{ width: "70%", height: "70%" }} stroke={2} />
+              <ActionIcon onClick={open} radius="lg">
+                <IconPlus style={{ width: '70%', height: '70%' }} stroke={2} />
               </ActionIcon>
             </Tooltip>
             {/* Aqui van los componentes modal */}
@@ -138,21 +139,37 @@ export function ClipsTable() {
               data={editData}
             /> */}
           </Group>
-          <Table miw={800} verticalSpacing="lg" horizontalSpacing="sm">
-            <Table.Thead
-              className={cx(classes.header, { [classes.scrolled]: scrolled })}
+          <Box
+            p={5}
+            style={{
+              borderRadius: 15,
+              padding: '20px',
+              flexDirection: 'column'
+            }}
+            bg="#2e2e2e"
+            my="md"
+          >
+            <Table
+              miw={800}
+              verticalSpacing="lg"
+              horizontalSpacing="sm"
+              striped
             >
-              <Table.Tr>
-                <Table.Th>Titulo</Table.Th>
-                <Table.Th>Etiquetas</Table.Th>
-                <Table.Th>Video</Table.Th>
-                <Table.Th>Acciones</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>{rows}</Table.Tbody>
-          </Table>
+              <Table.Thead
+                className={cx(classes.header, { [classes.scrolled]: scrolled })}
+              >
+                <Table.Tr bg="#2e2e2e">
+                  <Table.Th>Titulo</Table.Th>
+                  <Table.Th>Etiquetas</Table.Th>
+                  <Table.Th>Video</Table.Th>
+                  <Table.Th>Acciones</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>{rows}</Table.Tbody>
+            </Table>
+          </Box>
         </ScrollArea>
       </Group>
     </>
-  );
+  )
 }
