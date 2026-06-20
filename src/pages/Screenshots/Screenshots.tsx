@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import { IKContext, IKUpload } from "imagekitio-react";
 import { Container, SimpleGrid, Skeleton } from "@mantine/core";
 import {
@@ -28,6 +28,17 @@ export const Screenshots = () => {
 
   // Lightbox state
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  // Efecto para disparar la subida una vez que el estado 'file' se ha actualizado y React ha re-renderizado <IKUpload> con el 'fileName' correcto.
+  useEffect(() => {
+    if (file && IKUploadRef.current) {
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      IKUploadRef.current.files = dataTransfer.files;
+      const event = new Event("change", { bubbles: true });
+      IKUploadRef.current.dispatchEvent(event);
+    }
+  }, [file]);
 
   // 1. Filtrado de imágenes en memoria
   const filteredImages = images.filter((img) => {
@@ -86,6 +97,7 @@ export const Screenshots = () => {
     fetchImages();
     notifications.show({ title: "¡Agregado!", message: "Screenshot subida correctamente." });
     setProgress(0);
+    setFile(null); // Resetear archivo
     setTimeout(() => window.location.reload(), 1000);
   }, [fetchImages]);
 
@@ -115,13 +127,14 @@ export const Screenshots = () => {
             setProgress(Math.round((p.loaded / p.total) * 100))
           }
           onSuccess={handleOnSuccess}
-          onError={() =>
+          onError={() => {
             notifications.show({
               title: "Oops",
               message: "No pudimos subir la imagen.",
               color: "red",
-            })
-          }
+            });
+            setFile(null); // Resetear archivo
+          }}
           hidden
           accept="image/png,image/jpeg"
         />
@@ -170,17 +183,6 @@ export const Screenshots = () => {
                     onChange={(e) => {
                       const f = e.target.files?.[0] ?? null;
                       setFile(f);
-                      if (f) {
-                        setTimeout(() => {
-                          if (IKUploadRef.current) {
-                            const dataTransfer = new DataTransfer();
-                            dataTransfer.items.add(f);
-                            IKUploadRef.current.files = dataTransfer.files;
-                            const event = new Event("change", { bubbles: true });
-                            IKUploadRef.current.dispatchEvent(event);
-                          }
-                        }, 50);
-                      }
                     }}
                   />
                   <IconPlus size={16} />

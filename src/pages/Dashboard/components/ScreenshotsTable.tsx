@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { IKContext, IKUpload } from "imagekitio-react";
 import { Tooltip, TextInput, rem, Modal, Button, Text, Group } from "@mantine/core";
 import {
@@ -41,6 +41,17 @@ export function ScreenshotsTable() {
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Efecto para disparar la subida una vez que el estado 'file' se ha actualizado y React ha re-renderizado <IKUpload> con el 'fileName' correcto.
+  useEffect(() => {
+    if (file && IKUploadRef.current) {
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      IKUploadRef.current.files = dataTransfer.files;
+      const event = new Event("change", { bubbles: true });
+      IKUploadRef.current.dispatchEvent(event);
+    }
+  }, [file]);
 
   // Control de eliminación
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -91,6 +102,7 @@ export function ScreenshotsTable() {
       color: "blue",
     });
     setProgress(0);
+    setFile(null); // Resetear archivo
   }, [fetchImages]);
 
   const safeImages = Array.isArray(images) ? images : [];
@@ -188,6 +200,7 @@ export function ScreenshotsTable() {
               color: "red",
             });
             setProgress(0);
+            setFile(null); // Resetear archivo
           }}
           hidden
           accept="image/png,image/jpeg"
@@ -232,17 +245,6 @@ export function ScreenshotsTable() {
               onChange={(e) => {
                 const f = e.target.files?.[0] ?? null;
                 setFile(f);
-                if (f) {
-                  setTimeout(() => {
-                    if (IKUploadRef.current) {
-                      const dataTransfer = new DataTransfer();
-                      dataTransfer.items.add(f);
-                      IKUploadRef.current.files = dataTransfer.files;
-                      const event = new Event("change", { bubbles: true });
-                      IKUploadRef.current.dispatchEvent(event);
-                    }
-                  }, 50);
-                }
               }}
             />
             <IconPlus size={16} />

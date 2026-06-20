@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { Button, Group, Modal, TagsInput, TextInput } from "@mantine/core";
 import { IKContext, IKUpload } from "imagekitio-react";
 import { IconUpload, IconCheck, IconAlertCircle } from "@tabler/icons-react";
@@ -34,6 +34,18 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
   const [uploadedUrl, setUploadedUrl] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState("");
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+
+  // Efecto para disparar la subida una vez que el estado 'uploadFile' se ha actualizado y React ha re-renderizado <IKUpload> con el 'fileName' correcto.
+  useEffect(() => {
+    if (uploadFile && IKUploadRef.current) {
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(uploadFile);
+      IKUploadRef.current.files = dataTransfer.files;
+      const event = new Event("change", { bubbles: true });
+      IKUploadRef.current.dispatchEvent(event);
+    }
+  }, [uploadFile]);
 
   const form = useForm({
     mode: "uncontrolled",
@@ -78,17 +90,7 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
     setSelectedFileName(file.name);
     setUploadState("uploading");
     setUploadProgress(0);
-    
-    // Esperar al siguiente renderizado para que la prop 'fileName' de <IKUpload> esté actualizada
-    setTimeout(() => {
-      if (IKUploadRef.current) {
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        IKUploadRef.current.files = dataTransfer.files;
-        const event = new Event("change", { bubbles: true });
-        IKUploadRef.current.dispatchEvent(event);
-      }
-    }, 50);
+    setUploadFile(file);
   };
 
   const handleSubmit = useCallback(
@@ -140,9 +142,11 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
           onSuccess={(res) => {
             setUploadedUrl(res.url);
             setUploadState("done");
+            setUploadFile(null); // Resetear archivo
           }}
           onError={() => {
             setUploadState("error");
+            setUploadFile(null); // Resetear archivo
             notifications.show({ title: "Error de subida", message: "No pudimos subir el video a ImageKit.", color: "red" });
           }}
           hidden
