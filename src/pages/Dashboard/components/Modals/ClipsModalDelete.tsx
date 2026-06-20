@@ -23,17 +23,19 @@ export const ClipsModalDelete = ({
 
   const handleDeleteClip = useCallback(async () => {
     try {
-      deleteData(id);
+      await deleteData(id);
       refetch();
       notifications.show({
-        title: "Se elimino el clip",
-        message: `El clip ${title} se ha eliminado correctamente`,
+        title: "Se eliminó el clip",
+        message: `El clip "${title}" se ha eliminado correctamente`,
+        color: "blue",
       });
       handleModalsCancel();
-    } catch {
+    } catch (err: any) {
       notifications.show({
-        title: "Oops paso algo",
-        message: error,
+        title: "Oops pasó algo",
+        message: error || err.message || "No se pudo eliminar el clip.",
+        color: "red",
       });
     }
   }, [refetch, id, title, handleModalsCancel, deleteData, error]);

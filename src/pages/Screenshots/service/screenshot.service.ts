@@ -17,3 +17,13 @@ export const authenticateScreeshotService = async () => {
     console.log("Hubo un error en authentificar los datos", error);
   }
 };
+
+export const deleteScreenshotImage = async (fileId: string) => {
+  try {
+    const response = await AxiosScreenshot.delete(`/images/${fileId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al eliminar screenshot de la API", error);
+    throw error;
+  }
+};

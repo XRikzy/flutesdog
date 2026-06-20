@@ -1,74 +1,197 @@
-.root {  
-    background-size: cover;
-    background-position: center;
-    padding-top: calc(var(--mantine-spacing-xl) * 1);
-    padding-bottom: calc(var(--mantine-spacing-xl) * 3);
-    @media (max-width: $mantine-breakpoint-md) {
-      display: none;
-    }
-  }
-  
-  .inner {
-    display: flex;
-    justify-content: space-between;
-  
-    @media (max-width: $mantine-breakpoint-md) {
-      flex-direction: column;
-    }
-  }
-  
-  .image {
-    @media screen and (max-width: 600px) {
-      visibility: visible;
-    }
-  }
-  
-  .content {
-    padding-top: calc(var(--mantine-spacing-xl) * 2);
-    padding-bottom: calc(var(--mantine-spacing-xl) * 2);
-    margin-right: calc(var(--mantine-spacing-xl) * 3);
-  
-    @media (max-width: $mantine-breakpoint-md) {
-      margin-right: 0;
-    }
-  }
-  
-  .title {
-    color: var(--mantine-color-white);
-    font-family:
-      Greycliff CF,
-      var(--mantine-font-family);
-    font-weight: 900;
-    line-height: 1.05;
-    max-width: rem(500px);
-    font-size: rem(48px);
-  
-    @media (max-width: $mantine-breakpoint-md) {
-      max-width: 100%;
-      font-size: rem(50px);
-      line-height: 1.15;
-    }
-  }
-  
-  .description {
-    color: var(--mantine-color-white);
-    opacity: 0.80;
-    max-width: rem(500px);
+.hero {
+  position: relative;
+  min-height: 75vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  padding: 5rem 0 4rem;
+}
 
-    @media (max-width: $mantine-breakpoint-md) {
-      max-width: 100%;
-    }
-  }
-  
-  .control {
-    padding-left: rem(50px);
-    padding-right: rem(50px);
-    font-family:
-      Greycliff CF,
-      var(--mantine-font-family);
-    font-size: rem(22px);
-  
-    @media (max-width: $mantine-breakpoint-md) {
-      width: 100%;
-    }
-  }
+/* Fondo con malla de puntos */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Scanlines (firma visual gamer) */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.015) 2px,
+    rgba(0, 0, 0, 0.015) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Resplandor de fondo azul */
+.heroGlow {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 85, 255, 0.08) 0%, transparent 70%);
+  top: -100px;
+  left: -100px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+  max-width: 720px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+}
+
+.eyebrow::before {
+  content: '';
+  width: 20px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.heroTitle {
+  font-family: var(--font-display) !important;
+  font-weight: 900 !important;
+  font-size: clamp(2.8rem, 6vw, 5rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.03em !important;
+  color: var(--text-primary) !important;
+  margin-bottom: 1.5rem;
+}
+
+.heroAccent {
+  color: var(--accent);
+  display: block;
+}
+
+.heroSubtitle {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  max-width: 520px;
+  margin-bottom: 2.5rem;
+}
+
+/* Stats en vivo */
+.statsRow {
+  display: flex;
+  gap: 2.5rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statValue {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.statLabel {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Botones */
+.ctaGroup {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.ctaPrimary {
+  font-family: var(--font-body) !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  letter-spacing: 0.02em !important;
+  height: 48px !important;
+  padding: 0 2rem !important;
+  border-radius: 8px !important;
+  background: var(--accent) !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: var(--shadow-blue) !important;
+  transition: box-shadow 0.2s ease, transform 0.1s ease !important;
+}
+
+.ctaPrimary:hover {
+  box-shadow: var(--shadow-blue-lg) !important;
+}
+
+.ctaSecondary {
+  font-family: var(--font-body) !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  height: 48px !important;
+  padding: 0 2rem !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid var(--border) !important;
+  transition: border-color 0.2s ease, color 0.2s ease !important;
+}
+
+.ctaSecondary:hover {
+  border-color: var(--border-accent) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Imagen */
+.heroImage {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imageFrame {
+  position: relative;
+  border-radius: var(--radius-xl);
+  padding: 3px;
+  background: var(--accent);
+  box-shadow: var(--shadow-blue-lg);
+}
+
+.image {
+  display: block;
+  border-radius: calc(var(--radius-xl) - 3px);
+  max-height: 360px;
+  width: auto;
+  max-width: 100%;
+}

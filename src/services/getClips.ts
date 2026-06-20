@@ -20,6 +20,8 @@ export const getClips = async (): Promise<Ivideos[]> => {
         title: data.title || "",
         tag: data.tag || [],
         embed: data.embed || "",
+        videoUrl: data.videoUrl || "",
+        createdAt: data.createdAt || "",
       } as Ivideos;
     });
   } catch (error) {
@@ -41,6 +43,8 @@ export const getClipsByTitle = async (term: string) => {
         title: data.title || "",
         tag: data.tag || [],
         embed: data.embed || "",
+        videoUrl: data.videoUrl || "",
+        createdAt: data.createdAt || "",
       } as Ivideos;
     });
     console.log(results);

@@ -20,9 +20,10 @@ export const useAddScreenshot = () => {
   const fetchImages = useCallback(async () => {
     try {
       const data = await getScreenshotImages();
-      setImages(data);
+      setImages(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error obteniendo imágenes:", error);
+      setImages([]);
     } finally {
       setLoading(false);
     }

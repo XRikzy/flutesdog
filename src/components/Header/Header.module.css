@@ -1,11 +1,105 @@
-.control {
-    &[data-variant='danger'] {
-      background-color: var(--mantine-color-red-9);
-      color: var(--mantine-color-red-0);
-    }
-  
-    &[data-variant='primary'] {
-      background: linear-gradient(45deg, #4b6cb7 10%, #253b67 90%);
-      color: var(--mantine-color-white);
-    }
-  }
+.header {
+  position: relative;
+  background: rgba(10, 10, 15, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  padding: 0 1.5rem;
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.logoDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent), 0 0 16px var(--accent-glow);
+  flex-shrink: 0;
+}
+
+.logoText {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+/* Nav links */
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+}
+
+.navLink {
+  position: relative;
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.navLink:hover {
+  color: var(--text-primary);
+  background: var(--accent-dim);
+}
+
+.navLinkActive {
+  color: var(--accent) !important;
+  background: var(--accent-dim) !important;
+}
+
+.navLinkActive::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 14px;
+  right: 14px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px 2px 0 0;
+}
+
+/* Social icon */
+.socialIcon {
+  color: var(--text-secondary);
+  transition: color 0.2s ease, transform 0.2s ease;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+}
+
+.socialIcon:hover {
+  color: var(--text-primary);
+  transform: scale(1.1);
+  background: var(--bg-elevated);
+}
+
+/* Mobile burger */
+.burger {
+  color: var(--text-secondary);
+}

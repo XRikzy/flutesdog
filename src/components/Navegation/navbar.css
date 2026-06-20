@@ -1,14 +1,31 @@
-.navlink {
-    text-decoration: none;
-    color: inherit;
-    padding: 8px 16px;
-    display: inline-block;
-  }
-  
-  .navlink:hover {
-    color: rgb(77, 89, 128); /* Gris semi-transparente */
-  }
-  
-  .navlink-active {
-    color: rgb(96, 135, 180); /* Letras en color azul cuando esté activo */
+/* Mobile navbar — used inside AppShell.Navbar */
+.mobileNav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 0;
+}
+
+.mobileLink {
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  transition: color 0.2s ease, background 0.2s ease;
+  display: block;
+}
+
+.mobileLink:hover {
+  color: var(--text-primary);
+  background: var(--accent-dim);
+}
+
+.mobileLinkActive {
+  color: var(--accent) !important;
+  background: var(--accent-dim) !important;
+  border-left: 3px solid var(--accent);
+  padding-left: 13px;
 }

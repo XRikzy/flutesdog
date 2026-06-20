@@ -1,42 +1,28 @@
 import { NavLink } from "react-router-dom";
 import "./navbar.css";
+
+const navItems = [
+  { to: "/", label: "Inicio", end: true },
+  { to: "/clips", label: "Clips" },
+  { to: "/screenshots", label: "Screenshots" },
+  { to: "/dashboard", label: "Dashboard" },
+];
+
 export const NavBar = () => {
   return (
-    <>
-      {" "}
-      <NavLink
-        to="/"
-        className={({ isActive }) =>
-          isActive ? "navlink navlink-active" : "navlink"
-        }
+    <nav className="mobileNav" aria-label="Menú móvil">
+      {navItems.map((item) => (
+        <NavLink
+          key={item.to}
+          to={item.to}
+          end={item.end}
+          className={({ isActive }) =>
+            isActive ? "mobileLink mobileLinkActive" : "mobileLink"
+          }
         >
-        Inicio
-      </NavLink>
-      <NavLink
-        to="clips"
-        className={({ isActive }) =>
-          isActive ? "navlink navlink-active" : "navlink"
-        }
-      >
-        Clips
-      </NavLink>
-      <NavLink
-        to="screenshots"
-        className={({ isActive }) =>
-          
-          isActive ? "navlink navlink-active" : "navlink"
-        }
-      >
-        Screenshots
-      </NavLink>
-      <NavLink
-        to="dashboard"
-        className={({ isActive }) =>
-          isActive ? "navlink navlink-active" : "navlink"
-        }
-      >
-        Dashboard
-      </NavLink>
-    </>
+          {item.label}
+        </NavLink>
+      ))}
+    </nav>
   );
 };

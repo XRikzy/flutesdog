@@ -1,0 +1,106 @@
+/* ===================================
+   PERRO FLAUTAS — Global Design System
+   =================================== */
+
+/* --- Fuentes --- */
+:root {
+  /* Colores */
+  --bg-base:      #0a0a0f;
+  --bg-surface:   #111118;
+  --bg-elevated:  #1a1a26;
+  --bg-hover:     #1e1e2e;
+
+  --accent:       #0055ff;
+  --accent-dim:   rgba(0, 85, 255, 0.12);
+  --accent-glow:  rgba(0, 85, 255, 0.25);
+
+  --text-primary:   #f0f0ff;
+  --text-secondary: #8888aa;
+  --text-muted:     #55556a;
+
+  --border:        rgba(255, 255, 255, 0.06);
+  --border-accent: rgba(0, 85, 255, 0.35);
+  --border-hover:  rgba(0, 85, 255, 0.5);
+
+  /* Tipografía */
+  --font-display: 'Outfit', sans-serif;
+  --font-body:    'Inter', sans-serif;
+
+  /* Radios */
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  16px;
+  --radius-xl:  24px;
+
+  /* Sombras */
+  --shadow-sm:    0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md:    0 4px 20px rgba(0, 0, 0, 0.5);
+  --shadow-blue:  0 4px 20px rgba(0, 85, 255, 0.2);
+  --shadow-blue-lg: 0 8px 40px rgba(0, 85, 255, 0.3);
+}
+
+/* --- Reset base --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Selección de texto */
+::selection {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+/* Scrollbar minimalista */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-elevated);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-dim);
+}
+
+/* --- Utilidades --- */
+.glow-blue {
+  text-shadow: 0 0 20px rgba(0, 85, 255, 0.5);
+}
+
+.glass {
+  background: rgba(17, 17, 24, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+}
+
+/* Mantine overrides globales */
+.mantine-AppShell-root {
+  background-color: var(--bg-base) !important;
+}
+
+.mantine-AppShell-main {
+  background-color: var(--bg-base) !important;
+}
+
+.mantine-AppShell-header {
+  background-color: transparent !important;
+  border-bottom: none !important;
+}
