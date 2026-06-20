@@ -115,7 +115,7 @@ export function Dashboard() {
           {/* Sidebar */}
           <aside className={classes.sidebar}>
             <p className={classes.sidebarLabel}>Contenido</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+            <div className={classes.sidebarLinks}>
               {sections.map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
@@ -130,32 +130,31 @@ export function Dashboard() {
             </div>
 
             {/* Perfil del Administrador */}
-            <div style={{ marginTop: "24px", paddingTop: "16px", borderTop: "1px solid var(--border)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+            <div className={classes.profileSection}>
+              <div className={classes.profileInfo}>
                 {user.photoURL ? (
                   <img
                     src={user.photoURL}
                     alt={user.displayName || "Avatar"}
-                    style={{ width: "32px", height: "32px", borderRadius: "50%", border: "1px solid var(--border)" }}
+                    className={classes.profileAvatar}
                   />
                 ) : (
-                  <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "var(--accent-dim)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--accent)", fontSize: "0.8rem", fontWeight: "bold" }}>
+                  <div className={classes.profileAvatarFallback}>
                     {user.displayName?.charAt(0) || "A"}
                   </div>
                 )}
-                <div style={{ minWidth: 0, flex: 1 }}>
-                  <p style={{ margin: 0, fontSize: "0.78rem", fontWeight: 600, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <div className={classes.profileMeta}>
+                  <p className={classes.profileName}>
                     {user.displayName}
                   </p>
-                  <span style={{ fontSize: "0.68rem", fontWeight: 700, color: "var(--accent)", textTransform: "uppercase" }}>
+                  <span className={classes.profileRole}>
                     Administrador
                   </span>
                 </div>
               </div>
               <button
-                className={classes.authButtonSec}
+                className={`${classes.authButtonSec} ${classes.logoutBtn}`}
                 onClick={logout}
-                style={{ height: "32px", fontSize: "0.78rem", marginTop: 0 }}
               >
                 <IconLogout size={14} style={{ marginRight: "4px" }} />
                 <span>Cerrar sesión</span>

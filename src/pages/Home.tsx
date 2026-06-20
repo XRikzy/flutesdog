@@ -29,7 +29,7 @@ export const Home = () => {
       </AppShell.Header>
 
       <AppShell.Navbar py="md" px="sm" style={{ background: "var(--bg-surface)", borderRight: "1px solid var(--border)" }}>
-        <NavBar />
+        <NavBar close={close} />
       </AppShell.Navbar>
 
       <AppShell.Main>

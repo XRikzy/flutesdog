@@ -48,6 +48,12 @@
   position: relative;
 }
 
+@media (max-width: 768px) {
+  .navLinks {
+    display: none !important;
+  }
+}
+
 .navLink {
   position: relative;
   text-decoration: none;

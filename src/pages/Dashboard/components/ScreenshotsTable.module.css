@@ -197,3 +197,102 @@
   color: #ff4a4a;
   border-color: rgba(239, 68, 68, 0.4);
 }
+
+@media (max-width: 768px) {
+  .table thead {
+    display: none;
+  }
+
+  .table,
+  .table tbody,
+  .table tr,
+  .table td {
+    display: block;
+    width: 100%;
+  }
+
+  .table {
+    min-width: unset;
+  }
+
+  .tr {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-sizing: border-box;
+  }
+
+  .td {
+    padding: 0;
+    border: none;
+  }
+
+  .td:nth-child(1) { /* Image Preview */
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .screenshotImgWrapper {
+    width: 60px;
+    height: 60px;
+  }
+
+  .td:nth-child(2) { /* Title */
+    margin-top: 4px;
+  }
+
+  .td:nth-child(3) { /* Size */
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+  }
+
+  .td:nth-child(3)::before {
+    content: "Tamaño: ";
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .td:nth-child(4) { /* Date */
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+  }
+
+  .td:nth-child(4)::before {
+    content: "Fecha: ";
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .td:nth-child(5) { /* Actions */
+    margin-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 600px) {
+  .searchBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .uploadButton {
+    width: 100%;
+    justify-content: center;
+  }
+}

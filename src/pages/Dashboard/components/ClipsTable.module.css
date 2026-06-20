@@ -229,3 +229,79 @@
   color: #ff4a4a;
   border-color: rgba(239, 68, 68, 0.4);
 }
+
+@media (max-width: 768px) {
+  .table thead {
+    display: none;
+  }
+
+  .table,
+  .table tbody,
+  .table tr,
+  .table td {
+    display: block;
+    width: 100%;
+  }
+
+  .table {
+    min-width: unset;
+  }
+
+  .tr {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-sizing: border-box;
+  }
+
+  .td {
+    padding: 0;
+    border: none;
+  }
+
+  .td:nth-child(1) { /* Thumbnail Preview */
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .thumbnailWrapper,
+  .noThumbnail {
+    width: 100%;
+    max-width: 180px;
+  }
+
+  .td:nth-child(2) { /* Title & Date */
+    margin-top: 4px;
+  }
+
+  .td:nth-child(3) { /* Type Badge */
+    display: flex;
+  }
+
+  .td:nth-child(4) { /* Badges Container */
+    display: flex;
+  }
+
+  .td:nth-child(5) { /* Actions */
+    margin-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 600px) {
+  .searchBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .addButton {
+    width: 100%;
+    justify-content: center;
+  }
+}

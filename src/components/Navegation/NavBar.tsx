@@ -8,7 +8,11 @@ const navItems = [
   { to: "/dashboard", label: "Dashboard" },
 ];
 
-export const NavBar = () => {
+interface NavBarProps {
+  close?: () => void;
+}
+
+export const NavBar = ({ close }: NavBarProps) => {
   return (
     <nav className="mobileNav" aria-label="Menú móvil">
       {navItems.map((item) => (
@@ -19,6 +23,7 @@ export const NavBar = () => {
           className={({ isActive }) =>
             isActive ? "mobileLink mobileLinkActive" : "mobileLink"
           }
+          onClick={close}
         >
           {item.label}
         </NavLink>

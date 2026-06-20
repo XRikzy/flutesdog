@@ -366,3 +366,58 @@
   border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
+@media (max-width: 768px) {
+  .topBar {
+    padding: 1rem 0;
+  }
+
+  .topBarInner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .controls {
+    width: 100%;
+  }
+
+  .searchWrapper {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .searchInput {
+    width: 100% !important;
+  }
+
+  .searchInput:focus {
+    width: 100% !important;
+  }
+
+  .addButton {
+    padding: 8px 12px;
+  }
+
+  .filtersBarInner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .originSelector,
+  .tagsSelector {
+    width: 100%;
+  }
+
+  .segmentedControl {
+    width: 100%;
+  }
+
+  .segment {
+    flex: 1;
+    text-align: center;
+    padding: 6px 4px;
+    font-size: 0.72rem;
+  }
+}
+
