@@ -104,7 +104,17 @@ export const Screenshots = () => {
                     onChange={(e) => {
                       const f = e.target.files?.[0] ?? null;
                       setFile(f);
-                      if (f) IKUploadRef.current?.click();
+                      if (f) {
+                        setTimeout(() => {
+                          if (IKUploadRef.current) {
+                            const dataTransfer = new DataTransfer();
+                            dataTransfer.items.add(f);
+                            IKUploadRef.current.files = dataTransfer.files;
+                            const event = new Event("change", { bubbles: true });
+                            IKUploadRef.current.dispatchEvent(event);
+                          }
+                        }, 50);
+                      }
                     }}
                   />
                   <IconPlus size={16} />

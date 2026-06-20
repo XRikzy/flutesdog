@@ -78,7 +78,17 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
     setSelectedFileName(file.name);
     setUploadState("uploading");
     setUploadProgress(0);
-    IKUploadRef.current?.click();
+    
+    // Esperar al siguiente renderizado para que la prop 'fileName' de <IKUpload> esté actualizada
+    setTimeout(() => {
+      if (IKUploadRef.current) {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        IKUploadRef.current.files = dataTransfer.files;
+        const event = new Event("change", { bubbles: true });
+        IKUploadRef.current.dispatchEvent(event);
+      }
+    }, 50);
   };
 
   const handleSubmit = useCallback(
