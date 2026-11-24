@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Button, Container, Skeleton, SimpleGrid } from "@mantine/core";
-import { IconSearch, IconPlus, IconVideoOff, IconPlayerPlay } from "@tabler/icons-react";
-import { motion } from "framer-motion";
+import { useLocation } from "react-router-dom";
+import { Button, Container, Select, Skeleton, SimpleGrid } from "@mantine/core";
+import { IconSearch, IconPlus, IconVideoOff, IconPlayerPlay, IconLayoutGrid, IconDownload, IconBrandYoutube, IconTag, IconX } from "@tabler/icons-react";
+import { motion, useAnimate, useReducedMotion } from "motion/react";
 import { useDisclosure } from "@mantine/hooks";
 import { useGetClips } from "../../hooks/Clips/useGetClips";
 import { ClipsModalAdd } from "../Dashboard/components";
@@ -10,8 +11,16 @@ import { ClipPlayback } from "./ClipPlayback";
 import { getClipThumbnail } from "../../utils/clipThumbnail";
 import classes from "./Clips.module.css";
 
+const origins = [
+  { value: "all", label: "Todos", icon: IconLayoutGrid },
+  { value: "native", label: "Descargables", icon: IconDownload },
+  { value: "youtube", label: "YouTube", icon: IconBrandYoutube },
+] as const;
+
 export const Clips = () => {
   const { data, error, loading, refetch } = useGetClips();
+  const reduceMotion = useReducedMotion();
+  const [resultsRef, animateResults] = useAnimate<HTMLDivElement>();
   const [showInitialSkeleton, setShowInitialSkeleton] = useState(true);
   useEffect(() => {
     const timer = window.setTimeout(() => setShowInitialSkeleton(false), 180);
@@ -19,16 +28,22 @@ export const Clips = () => {
   }, []);
   const [activeClipId, setActiveClipId] = useState<string | null>(null);
   const [opened, { open, close }] = useDisclosure(false);
-  const [clipTitle, setClipTitle] = useState("");
-  const [selectedTag, setSelectedTag] = useState("Todos");
+  const { search, key: locationKey } = useLocation();
+  const searchQuery = new URLSearchParams(search).get("q") ?? "";
+  const [clipTitle, setClipTitle] = useState(searchQuery);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [selectedOrigin, setSelectedOrigin] = useState<"all" | "native" | "youtube">("all");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  useEffect(() => {
+    setClipTitle(searchQuery);
+    setSelectedTag(null);
+    setSelectedOrigin("all");
+    setShowSuggestions(false);
+  }, [searchQuery, locationKey]);
 
   // Extraer etiquetas únicas de los clips
-  const allTags = [
-    "Todos",
-    ...Array.from(new Set(data.flatMap((clip) => clip.tag || []))),
-  ];
+  const allTags = [...new Set(data.flatMap((clip) => clip.tag || []).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "es"));
 
   // Generar sugerencias basadas en el texto escrito
   const suggestions = clipTitle.trim()
@@ -50,7 +65,7 @@ export const Clips = () => {
 
     // 2. Filtrar por tag seleccionado
     const matchesTag =
-      selectedTag === "Todos" || (clip.tag && clip.tag.includes(selectedTag));
+      selectedTag === null || (clip.tag && clip.tag.includes(selectedTag));
 
     // 3. Filtrar por origen (archivo de video vs YouTube legacy)
     const matchesOrigin =
@@ -60,6 +75,21 @@ export const Clips = () => {
 
     return matchesQuery && matchesTag && matchesOrigin;
   });
+  const showResults = !loading && !showInitialSkeleton && displayData.length > 0;
+
+  useEffect(() => {
+    const results = resultsRef.current;
+    if (!results || !showResults || reduceMotion) return;
+    const playback = animateResults(results, { opacity: [0.62, 1], y: [5, 0] }, {
+      duration: 0.22,
+      ease: "easeOut",
+    });
+    return () => {
+      playback.stop();
+      results.style.removeProperty("opacity");
+      results.style.removeProperty("transform");
+    };
+  }, [selectedOrigin, selectedTag, showResults, reduceMotion, resultsRef, animateResults]);
 
   return (
     <div className={classes.page}>
@@ -135,58 +165,54 @@ export const Clips = () => {
         </Container>
       </div>
 
-      {/* Filtros Bar */}
       <div className={classes.filtersBar}>
         <Container size="xl">
           <div className={classes.filtersBarInner}>
-            {/* Origen Selector */}
-            <div className={classes.originSelector}>
-              <span className={classes.filterLabel}>Origen</span>
+            <fieldset className={classes.originSelector}>
+              <legend className={classes.filterLabel}>Origen</legend>
               <div className={classes.segmentedControl}>
-                <button
-                  className={`${classes.segment} ${
-                    selectedOrigin === "all" ? classes.segmentActive : ""
-                  }`}
-                  onClick={() => setSelectedOrigin("all")}
-                >
-                  Todos
-                </button>
-                <button
-                  className={`${classes.segment} ${
-                    selectedOrigin === "native" ? classes.segmentActive : ""
-                  }`}
-                  onClick={() => setSelectedOrigin("native")}
-                >
-                  Descargables
-                </button>
-                <button
-                  className={`${classes.segment} ${
-                    selectedOrigin === "youtube" ? classes.segmentActive : ""
-                  }`}
-                  onClick={() => setSelectedOrigin("youtube")}
-                >
-                  YouTube
-                </button>
-              </div>
-            </div>
-
-            {/* Tags Pills */}
-            <div className={classes.tagsSelector}>
-              <span className={classes.filterLabel}>Etiquetas</span>
-              <div className={classes.tagPillsWrapper}>
-                {allTags.map((tag) => (
-                  <button
-                    key={tag}
-                    className={`${classes.tagPill} ${
-                      selectedTag === tag ? classes.tagPillActive : ""
-                    }`}
-                    onClick={() => setSelectedTag(tag)}
-                  >
-                    {tag}
-                  </button>
+                {origins.map(({ value, label, icon: Icon }) => (
+                  <motion.button key={value} type="button" className={classes.segment}
+                    aria-pressed={selectedOrigin === value} onClick={() => setSelectedOrigin(value)}
+                    whileTap={reduceMotion ? undefined : { scale: 0.96 }}>
+                    {selectedOrigin === value && (
+                      <motion.span
+                        aria-hidden="true"
+                        className={classes.segmentIndicator}
+                        layoutId={reduceMotion ? undefined : "clip-origin-indicator"}
+                        initial={false}
+                        transition={{ type: "spring", stiffness: 465, damping: 35 }}
+                      />
+                    )}
+                    <Icon size={16} stroke={1.75} aria-hidden="true" />
+                    <span>{label}</span>
+                  </motion.button>
                 ))}
               </div>
-            </div>
+            </fieldset>
+            <Select
+              className={classes.tagsSelector}
+              classNames={{ label: classes.filterLabel, input: classes.tagInput, dropdown: classes.tagDropdown }}
+              label="Etiqueta"
+              placeholder="Todas las etiquetas"
+              data={allTags}
+              value={selectedTag}
+              onChange={setSelectedTag}
+              leftSection={<IconTag size={17} aria-hidden="true" />}
+              searchable
+              clearable
+              clearButtonProps={{ "aria-label": "Quitar etiqueta" }}
+              nothingFoundMessage="Ninguna etiqueta encontrada"
+              maxDropdownHeight={260}
+            />
+            {(selectedTag !== null || selectedOrigin !== "all") && (
+              <button type="button" className={classes.clearFilters} onClick={() => {
+                setSelectedTag(null);
+                setSelectedOrigin("all");
+              }}>
+                <IconX size={15} aria-hidden="true" /> Limpiar filtros
+              </button>
+            )}
           </div>
         </Container>
       </div>
@@ -207,18 +233,20 @@ export const Clips = () => {
         ) : displayData.length === 0 ? (error ? null : (
           <motion.div
             className={classes.emptyState}
-            initial={{ opacity: 0, y: 20 }}
+            initial={reduceMotion ? false : { opacity: 0.62, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
           >
             <IconVideoOff size={48} stroke={1} color="var(--text-muted)" />
             <p className={classes.emptyTitle}>No hay clips aquí</p>
             <p className={classes.emptySubtitle}>
-              {clipTitle.trim() || selectedTag !== "Todos" || selectedOrigin !== "all"
+              {clipTitle.trim() || selectedTag !== null || selectedOrigin !== "all"
                 ? "Ningún clip coincide con los filtros aplicados."
                 : "Aún no hay clips cargados. ¡Agrega el primero!"}
             </p>
           </motion.div>
         )) : (
+          <div ref={resultsRef}>
             <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
                 {displayData.map(({ id, title, embed, videoUrl, tag, thumbnailUrl }) => {
                   const cover = getClipThumbnail({ thumbnailUrl, videoUrl, embed });
@@ -258,6 +286,7 @@ export const Clips = () => {
                   );
                 })}
             </SimpleGrid>
+          </div>
         )}
       </Container>
 

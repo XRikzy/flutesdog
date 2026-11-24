@@ -1,31 +1,60 @@
-/* Mobile navbar — used inside AppShell.Navbar */
-.mobileNav {
+#library-sidebar.libraryPanel {
+  background: #0e1118;
+  border-inline-end: 1px solid #ffffff0d;
+}
+.librarySidebar { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.libraryNav { display: grid; align-content: start; gap: 2px; flex: 1; overflow-y: auto; padding: 3px; }
+.libraryLink {
+  --library-indicator-scale: 1;
+  position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 8px 0;
-}
-
-.mobileLink {
-  text-decoration: none;
-  color: var(--text-secondary);
-  font-family: var(--font-body);
-  font-size: 1rem;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 0 10px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
   font-weight: 500;
-  padding: 10px 16px;
-  border-radius: var(--radius-md);
-  transition: color 0.2s ease, background 0.2s ease;
-  display: block;
+  text-decoration: none;
+  border-radius: 8px;
 }
-
-.mobileLink:hover {
+.libraryLink svg { flex-shrink: 0; }
+.libraryLink:hover, .libraryAccountLink:hover { background: #ffffff08; color: var(--text-primary); }
+.libraryLinkActive {
+  background: #ffffff08;
   color: var(--text-primary);
-  background: var(--accent-dim);
+  font-weight: 600;
 }
+.libraryLinkActive svg { color: var(--accent); }
+.libraryLinkActive::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 50%;
+  translate: 0 -50%;
+  transform: scaleY(var(--library-indicator-scale));
+  width: 2px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+.libraryLink:last-child { margin-top: 8px; }
 
-.mobileLinkActive {
-  color: var(--accent) !important;
-  background: var(--accent-dim) !important;
-  border-left: 3px solid var(--accent);
-  padding-left: 13px;
+.libraryAccount {
+  margin-inline: 3px;
+  padding-top: 8px;
+  border-top: 1px solid #ffffff0d;
 }
+.libraryAccountLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 4px 7px;
+  color: var(--text-primary);
+  border-radius: 8px;
+  text-decoration: none;
+}
+.libraryAccountText { display: grid; gap: 2px; min-width: 0; font-size: 0.8rem; font-weight: 600; }
+.libraryAccountText > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.libraryAccountText small { font-size: 0.72rem; font-weight: 400; color: var(--text-muted); }

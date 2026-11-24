@@ -1,143 +1,40 @@
-import { Button, Image } from "@mantine/core";
-import { motion } from "framer-motion";
+import { Button } from "@mantine/core";
+import { useLayoutEffect, useRef } from "react";
+import { IconPlayerPlay } from "@tabler/icons-react";
+import { gsap } from "gsap";
 import { Link } from "react-router-dom";
-import { useGetClips } from "../../../hooks/Clips/useGetClips";
 import classes from "./HeroImageRight.module.css";
 
 export const Hero = () => {
-  const { data: clips } = useGetClips();
-  const clipCount = clips.length;
+  const heroRef = useRef<HTMLElement>(null);
 
-  const fadeUp = (delay: number) => ({
-    hidden: { opacity: 0, y: 24 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: "easeOut" as const, delay },
-    },
-  });
+  useLayoutEffect(() => {
+    if (!heroRef.current) return;
+    const media = gsap.matchMedia(heroRef.current);
+    media.add("(prefers-reduced-motion: no-preference)", () => {
+      gsap.timeline({ defaults: { ease: "power3.out", clearProps: "transform,opacity" } })
+        .from("[data-hero-line]", {
+          yPercent: 110, opacity: 0.45, duration: 0.62, stagger: 0.12,
+        }, 0)
+        .from("[data-hero-copy]", { y: 12, opacity: 0, duration: 0.45 }, 0.32)
+        .from("[data-hero-action]", { y: 6, opacity: 0.5, duration: 0.36 }, 0.42)
+        .from("[data-hero-glow]", { scale: 0.72, opacity: 0, duration: 0.95 }, 0.04);
+    });
+    return () => media.revert();
+  }, []);
 
   return (
-    <section className={classes.hero} aria-label="Bienvenida">
-      <div className={classes.heroGlow} aria-hidden="true" />
-      <div className={classes.scanlines} aria-hidden="true" />
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: "3rem",
-          width: "100%",
-          flexWrap: "wrap",
-        }}
-      >
-        {/* Contenido izquierda */}
-        <div className={classes.heroContent}>
-          <motion.span
-            className={classes.eyebrow}
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp(0)}
-          >
-            Familia de aquellas
-          </motion.span>
-
-          <motion.h1
-            className={classes.heroTitle}
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp(0.1)}
-          >
-            Bienvenido a
-            <span className={classes.heroAccent}>Perro Flautas</span>
-          </motion.h1>
-
-          <motion.p
-            className={classes.heroSubtitle}
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp(0.2)}
-          >
-            La biblioteca donde guardamos los mejores clips y capturas. Mas que amigos, hermanos.
-          </motion.p>
-
-          {/* Stats en vivo */}
-          <motion.div
-            className={classes.statsRow}
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp(0.3)}
-          >
-            <div className={classes.stat}>
-              <span className={classes.statValue}>
-                {clipCount > 0 ? clipCount : "—"}
-              </span>
-              <span className={classes.statLabel}>Clips</span>
-            </div>
-            <div className={classes.stat}>
-              <span className={classes.statValue}>∞</span>
-              <span className={classes.statLabel}>Momentos</span>
-            </div>
-            <div className={classes.stat}>
-              <span className={classes.statValue}>1</span>
-              <span className={classes.statLabel}>José</span>
-            </div>
-          </motion.div>
-
-          {/* CTAs */}
-          <motion.div
-            className={classes.ctaGroup}
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp(0.4)}
-          >
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Button
-                component={Link}
-                to="/clips"
-                className={classes.ctaPrimary}
-                size="md"
-                id="hero-cta-clips"
-              >
-                Ver clips
-              </Button>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Button
-                component={Link}
-                to="/screenshots"
-                className={classes.ctaSecondary}
-                size="md"
-                id="hero-cta-screenshots"
-              >
-                Screenshots
-              </Button>
-            </motion.div>
-          </motion.div>
-        </div>
-
-        {/* Imagen */}
-        <motion.div
-          className={classes.heroImage}
-          initial={{ opacity: 0, scale: 0.9, rotate: -1 }}
-          animate={{ opacity: 1, scale: 1, rotate: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-        >
-          <motion.div
-            className={classes.imageFrame}
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <Image
-              src="/assets/hero.png"
-              alt="Perro Flautas — imagen de bienvenida"
-              className={classes.image}
-              radius="xl"
-            />
-          </motion.div>
-        </motion.div>
-      </div>
+    <section className={classes.hero} ref={heroRef} aria-label="Bienvenida">
+      <div className={classes.glow} data-hero-glow aria-hidden="true" />
+      <h1>
+        <span className={classes.titleMask}><span data-hero-line>Clips y capturas</span></span>{" "}
+        <span className={classes.titleMask}><span data-hero-line>de <span className={classes.accent}>Perro Flautas</span></span></span>
+      </h1>
+      <p data-hero-copy>Revive nuestras partidas y explora la biblioteca por juego, evento o momento.</p>
+      <Button component={Link} to="/clips" className={classes.primary} id="hero-cta-clips" data-hero-action
+        leftSection={<IconPlayerPlay size={19} />}>
+        Explorar clips
+      </Button>
     </section>
   );
 };

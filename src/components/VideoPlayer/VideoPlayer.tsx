@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { IconDownload } from "@tabler/icons-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { IMAGEKIT_ENDPOINT, withImageKitTransform } from "../../utils/imageKit";
 import classes from "./VideoPlayer.module.css";
 
@@ -108,7 +108,11 @@ export const VideoPlayer = ({ src, title, showDownload = true, autoPlay = false 
           playsInline
         />
       </div>
-      {videoError && <p role="status">No pudimos reproducir este video. Puedes intentar descargar el original.</p>}
+      {videoError && (
+        <p role="status">
+          No pudimos reproducir este video. {showDownload && "Puedes intentar descargar el original."}
+        </p>
+      )}
 
       {/* Botones de descarga */}
       {showDownload && src && (

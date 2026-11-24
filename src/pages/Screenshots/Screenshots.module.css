@@ -11,7 +11,7 @@
   background: var(--bg-surface);
   padding: 1.5rem 0 1rem;
   position: sticky;
-  top: 60px;
+  top: var(--app-shell-header-height, 78px);
   z-index: 10;
   backdrop-filter: blur(16px);
 }

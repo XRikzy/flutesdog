@@ -10,11 +10,11 @@ export const Home = () => {
 
   return (
     <AppShell
-      header={{ height: 60 }}
+      header={{ height: 78 }}
       navbar={{
-        width: 260,
-        breakpoint: "sm",
-        collapsed: { desktop: true, mobile: !opened },
+        width: { base: 224, md: 168, xl: 184 },
+        breakpoint: "md",
+        collapsed: { mobile: !opened },
       }}
       padding={0}
       withBorder={false}
@@ -23,8 +23,8 @@ export const Home = () => {
         <Header toggle={toggle} opened={opened} />
       </AppShell.Header>
 
-      <AppShell.Navbar py="md" px="sm" style={{ background: "var(--bg-surface)", borderRight: "1px solid var(--border)" }}>
-        <NavBar close={close} />
+      <AppShell.Navbar id="library-sidebar" className="libraryPanel" py="sm" px="sm">
+        <NavBar opened={opened} close={close} />
       </AppShell.Navbar>
 
       <AppShell.Main>

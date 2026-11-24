@@ -8,7 +8,7 @@ import {
   IconPhoto,
   IconSearch,
 } from "@tabler/icons-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { notifications } from "@mantine/notifications";
 import { useAuth } from "../../context/AuthContext";
 import { useAddScreenshot } from "./hook/useAddScreenshot";

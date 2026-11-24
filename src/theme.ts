@@ -20,11 +20,11 @@ export const theme = createTheme({
   fontFamily: "'Inter', sans-serif",
   fontFamilyMonospace: "Menlo, Monaco, Consolas, monospace",
   headings: {
-    fontFamily: "'Outfit', sans-serif",
-    fontWeight: "800",
+    fontFamily: "Inter, system-ui, sans-serif",
+    fontWeight: "500",
   },
-  black: "#0a0a0f",
-  white: "#f0f0ff",
+  black: "#0a0c11",
+  white: "#eef1ea",
   components: {
     Button: {
       defaultProps: { radius: "md" },
@@ -38,11 +38,11 @@ export const theme = createTheme({
     Modal: {
       styles: {
         content: {
-          backgroundColor: "#111118",
+          backgroundColor: "var(--bg-surface)",
           border: "1px solid rgba(255,255,255,0.06)",
         },
         header: {
-          backgroundColor: "#111118",
+          backgroundColor: "var(--bg-surface)",
           borderBottom: "1px solid rgba(255,255,255,0.06)",
         },
         overlay: {
@@ -53,11 +53,11 @@ export const theme = createTheme({
     TextInput: {
       styles: {
         input: {
-          backgroundColor: "#1a1a26",
+          backgroundColor: "var(--bg-elevated)",
           border: "1px solid rgba(255,255,255,0.08)",
-          color: "#f0f0ff",
+          color: "#eef1ea",
           "&:focus": {
-            borderColor: "rgba(0, 85, 255, 0.5)",
+            borderColor: "var(--border-hover)",
           },
         },
       },
@@ -65,9 +65,9 @@ export const theme = createTheme({
     TagsInput: {
       styles: {
         input: {
-          backgroundColor: "#1a1a26",
+          backgroundColor: "var(--bg-elevated)",
           border: "1px solid rgba(255,255,255,0.08)",
-          color: "#f0f0ff",
+          color: "#eef1ea",
         },
       },
     },

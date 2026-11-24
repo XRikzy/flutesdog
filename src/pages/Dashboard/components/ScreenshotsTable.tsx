@@ -8,7 +8,7 @@ import {
   IconExternalLink,
 } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { useAddScreenshot } from "../../Screenshots/hook/useAddScreenshot";
 import { deleteScreenshotImage } from "../../Screenshots/service/screenshot.service";
 import classes from "./ScreenshotsTable.module.css";

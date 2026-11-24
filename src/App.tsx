@@ -1,4 +1,5 @@
 import { MantineProvider } from "@mantine/core";
+import { MotionConfig } from "motion/react";
 import { theme } from "./theme";
 import { AppRouter } from "./router/Router";
 import { AuthProvider } from "./context/AuthContext";
@@ -12,7 +13,9 @@ export default function App() {
     <MantineProvider theme={theme} defaultColorScheme="dark">
       <Notifications />
       <AuthProvider>
-        <AppRouter />
+        <MotionConfig reducedMotion="user">
+          <AppRouter />
+        </MotionConfig>
       </AuthProvider>
     </MantineProvider>
   );

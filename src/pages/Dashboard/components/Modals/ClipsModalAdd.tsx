@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
-import { Button, Group, Modal, TagsInput, TextInput } from "@mantine/core";
+import { Button, Group, Loader, Modal, TagsInput, Text, TextInput } from "@mantine/core";
 import { IconUpload, IconCheck, IconAlertCircle } from "@tabler/icons-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { notifications } from "@mantine/notifications";
 import { AddClipValues } from "../../../../constants/documents";
 import { useAddClips } from "../../../../hooks/Clips/useAddClips";
@@ -9,7 +9,7 @@ import { uploadMedia } from "../../../../services/uploadMedia";
 import classes from "./ClipsModalAdd.module.css";
 import { useForm } from "@mantine/form";
 
-const MAX_SIZE_MB = 240;
+const MAX_SIZE_MIB = 240;
 const ACCEPTED_EXTENSIONS = ".mp4,.mov,.webm";
 
 export type Props = {
@@ -23,12 +23,13 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
 
   // Estado del upload
   const [uploadState, setUploadState] = useState<
-    "idle" | "uploading" | "done" | "error"
+    "idle" | "uploading" | "processing" | "done" | "error"
   >("idle");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedUrl, setUploadedUrl] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState("");
+  const uploadInProgress = uploadState === "uploading" || uploadState === "processing";
 
   const form = useForm({
     mode: "uncontrolled",
@@ -47,26 +48,26 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
   }, [form]);
 
   const handleClose = useCallback(() => {
-    handleReset();
+    if (uploadState !== "processing") handleReset();
     close();
-  }, [close, handleReset]);
+  }, [close, handleReset, uploadState]);
 
   const handleFileSelect = async (file: File | null) => {
-    if (!file || uploadState === "uploading" || uploadState === "done") return;
+    if (!file || uploadInProgress || uploadState === "done") return;
     if (!/^video\/(mp4|quicktime|webm)$/.test(file.type)) {
       notifications.show({ title: "Formato inválido", message: "Solo se aceptan MP4, MOV y WEBM.", color: "red" });
       return;
     }
-    const sizeMB = file.size / 1024 / 1024;
-    if (sizeMB > MAX_SIZE_MB) {
-      notifications.show({ title: "Archivo muy grande", message: `El video no puede superar ${MAX_SIZE_MB}MB. Este pesa ${sizeMB.toFixed(0)}MB.`, color: "red" });
+    const sizeMiB = file.size / 1024 / 1024;
+    if (sizeMiB > MAX_SIZE_MIB) {
+      notifications.show({ title: "Archivo muy grande", message: `El máximo es ${MAX_SIZE_MIB} MiB por video.`, color: "red" });
       return;
     }
     setSelectedFileName(file.name);
     setUploadState("uploading");
     setUploadProgress(0);
     try {
-      setUploadedUrl(await uploadMedia(file, "clip", setUploadProgress));
+      setUploadedUrl(await uploadMedia(file, "clip", setUploadProgress, () => setUploadState("processing")));
       setUploadState("done");
     } catch (error) {
       setUploadState("error");
@@ -106,7 +107,7 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
       onClose={handleClose}
       withCloseButton={uploadState !== "uploading" && !loading}
       closeOnEscape={uploadState !== "uploading" && !loading}
-      closeOnClickOutside={uploadState !== "uploading" && !loading}
+      closeOnClickOutside={!uploadInProgress && !loading}
       title="Agregar clip"
       centered
       radius={15}
@@ -166,7 +167,7 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
                 <IconUpload size={28} stroke={1.5} color="var(--text-muted)" />
                 <p className={classes.dropTitle}>Arrastra tu video aquí</p>
                 <p className={classes.dropSub}>o haz clic para seleccionar</p>
-                <p className={classes.dropHint}>MP4, MOV, WEBM · máx. {MAX_SIZE_MB}MB</p>
+                <p className={classes.dropHint}>MP4, MOV, WebM</p>
               </motion.div>
             )}
 
@@ -192,6 +193,21 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
                 <p className={classes.dropHint} style={{ marginTop: 8 }}>
                   {uploadProgress}% completado
                 </p>
+                <p className={classes.dropSub}>{selectedFileName}</p>
+              </motion.div>
+            )}
+
+            {uploadState === "processing" && (
+              <motion.div
+                key="processing"
+                className={classes.dropContent}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                role="status"
+              >
+                <Loader size="sm" />
+                <p className={classes.dropTitle}>Comprimiendo video…</p>
                 <p className={classes.dropSub}>{selectedFileName}</p>
               </motion.div>
             )}
@@ -231,10 +247,11 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
             )}
           </AnimatePresence>
         </div>
+        <Text size="sm" c="dimmed" mt="xs">Máximo de {MAX_SIZE_MIB} MiB por video original.</Text>
 
         <Group justify="flex-end" mt="md">
           <Button onClick={handleClose} disabled={uploadState === "uploading" || loading} variant="default" color="gray">
-            Cancelar
+            {uploadState === "processing" ? "Cerrar" : "Cancelar"}
           </Button>
           <Button
             type="submit"
