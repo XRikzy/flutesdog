@@ -1,5 +1,9 @@
 {
+  "functions": {
+    "api/clip-preview.js": { "includeFiles": "dist/index.html" }
+  },
   "rewrites": [
+    { "source": "/clips/:clipId", "destination": "/api/clip-preview?clipId=:clipId" },
     { "source": "/(.*)", "destination": "/" }
   ]
 }

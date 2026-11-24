@@ -1,42 +1,49 @@
 import { useCallback, useEffect, useState } from "react";
-import {
-  authenticateScreeshotService,
-  getScreenshotImages,
-} from "../service/screenshot.service";
+import { notifications } from "@mantine/notifications";
+import { getScreenshotImages } from "../service/screenshot.service";
 import { Images } from "../decorators/UImages";
+import { uploadMedia } from "../../../services/uploadMedia";
 
 export const useAddScreenshot = () => {
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [images, setImages] = useState<Images[]>([]);
-  const publicKey = "public_4e8z8SiIt6dIJn8XIwm4T1pjqpc=";
-  const urlEndpoint = "https://ik.imagekit.io/ru9ftzizk/";
-  const authenticator = async () => {
-    try {
-      return authenticateScreeshotService();
-    } catch (error) {
-      throw new Error(`Authentication request failed: ${error}`);
-    }
-  };
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+
   const fetchImages = useCallback(async () => {
     try {
       const data = await getScreenshotImages();
       setImages(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Error obteniendo imágenes:", error);
-      setImages([]);
+    } catch {
+      notifications.show({ title: "Error", message: "No pudimos cargar las screenshots.", color: "red" });
     } finally {
       setLoading(false);
     }
   }, []);
+
   useEffect(() => {
-    fetchImages();
+    void fetchImages();
   }, [fetchImages]);
-  return {
-    authenticator,
-    fetchImages,
-    loading,
-    images,
-    publicKey,
-    urlEndpoint,
+
+  const addScreenshot = async (file?: File) => {
+    if (!file || uploading) return;
+    setUploading(true);
+    setProgress(0);
+    try {
+      await uploadMedia(file, "screenshot", setProgress);
+      await fetchImages();
+      notifications.show({ title: "¡Agregado!", message: "Screenshot subida correctamente." });
+    } catch (error) {
+      notifications.show({
+        title: "Error de subida",
+        message: error instanceof Error ? error.message : "No pudimos subir la imagen.",
+        color: "red",
+      });
+    } finally {
+      setUploading(false);
+      setProgress(0);
+    }
   };
+
+  return { fetchImages, loading, images, addScreenshot, uploading, progress };
 };

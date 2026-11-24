@@ -48,3 +48,22 @@ export default tseslint.config({
   },
 })
 ```
+# Vistas previas de clips
+
+Vercel sirve `/clips/<id>` mediante `api/clip-preview.js`. La función usa el `VITE_PROJECTID` del frontend para consultar el documento público de Firestore y agregar los metadatos al HTML compilado. Configura `SITE_URL` con el dominio público si quieres fijar la URL canónica. Si queda vacío, se usa el dominio de la solicitud.
+
+La portada usa `thumbnailUrl` del documento si contiene una URL HTTPS pública, o la miniatura de ImageKit o YouTube cuando está disponible. Los clips de R2 sin portada propia usan la imagen de Perro Flautas. Los MP4 públicos también incluyen `og:video`.
+
+## Colecciones
+
+En **Dashboard → Colecciones** se pueden crear y editar colecciones con clips y capturas existentes y elegir cuál se destaca en Inicio. Las colecciones tienen enlaces públicos bajo `/colecciones`.
+
+Si las reglas desplegadas de Firestore aún no contemplan `Collections`, añade este bloque dentro de `match /databases/{database}/documents` y sustituye el UID de ejemplo por los UID autorizados del panel. El documento `_featured` en la misma colección guarda qué colección se muestra en Inicio.
+
+```txt
+match /Collections/{collectionId} {
+  allow read: if true;
+  allow create, update: if request.auth != null
+    && request.auth.uid in ['UID_ADMIN'];
+}
+```

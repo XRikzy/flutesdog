@@ -1,21 +1,8 @@
 import { useState } from "react";
 import { IconDownload } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { IMAGEKIT_ENDPOINT, withImageKitTransform } from "../../utils/imageKit";
 import classes from "./VideoPlayer.module.css";
-
-const IK_ENDPOINT = "https://ik.imagekit.io/ru9ftzizk/";
-
-/**
- * Convierte una URL de ImageKit en su versión con transformación.
- * Inserta los parámetros de transformación en el path:
- * https://ik.imagekit.io/id/tr:q-60,f-mp4/archivo.mp4
- */
-function withTransform(url: string, tr: string): string {
-  if (!url) return url;
-  // Si ya tiene transformaciones previas, las reemplazamos
-  const cleanUrl = url.replace(/\/tr:[^/]+\//, "/");
-  return cleanUrl.replace(IK_ENDPOINT, `${IK_ENDPOINT}tr:${tr}/`);
-}
 
 /**
  * Descarga un video desde una URL cross-origin como blob para evitar
@@ -27,11 +14,11 @@ async function downloadBlob(
   onProgress?: (pct: number) => void
 ) {
   const response = await fetch(url);
-  if (!response.ok) throw new Error("Error al descargar el video");
+  if (!response.ok || !response.body) throw new Error("Error al descargar el video");
 
   const contentLength = response.headers.get("content-length");
   const total = contentLength ? parseInt(contentLength, 10) : 0;
-  const reader = response.body!.getReader();
+  const reader = response.body.getReader();
   const chunks: Uint8Array[] = [];
   let received = 0;
 
@@ -43,7 +30,7 @@ async function downloadBlob(
     if (total > 0 && onProgress) onProgress(Math.round((received / total) * 100));
   }
 
-  const blob = new Blob(chunks, { type: "video/mp4" });
+  const blob = new Blob(chunks, { type: response.headers.get("content-type") || "application/octet-stream" });
   const objectUrl = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = objectUrl;
@@ -53,22 +40,26 @@ async function downloadBlob(
 }
 
 type VideoPlayerProps = {
-  /** URL de ImageKit del video original */
+  /** URL del video original */
   src: string;
   /** Título del clip (usado como nombre de archivo al descargar) */
   title: string;
   /** Si se muestran los botones de descarga */
   showDownload?: boolean;
+  autoPlay?: boolean;
 };
 
-export const VideoPlayer = ({ src, title, showDownload = true }: VideoPlayerProps) => {
+export const VideoPlayer = ({ src, title, showDownload = true, autoPlay = false }: VideoPlayerProps) => {
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   const [downloading, setDownloading] = useState<"compressed" | "original" | null>(null);
   const [dlProgress, setDlProgress] = useState(0);
 
   // URLs con transformaciones de ImageKit
-  const playbackUrl = withTransform(src, "q-80,f-mp4");
-  const compressedDlUrl = withTransform(src, "q-60,f-mp4");
+  const canCompress = src.startsWith(IMAGEKIT_ENDPOINT);
+  const playbackUrl = withImageKitTransform(src, "q-80,f-mp4");
+  const compressedDlUrl = withImageKitTransform(src, "q-60,f-mp4");
+  const extension = src.split(/[?#]/, 1)[0].match(/\.(mp4|webm|mov)$/i)?.[1] ?? "mp4";
   const safeName = title.replace(/[^a-z0-9_\-]/gi, "_").toLowerCase();
 
   const handleDownload = async (type: "compressed" | "original") => {
@@ -77,7 +68,7 @@ export const VideoPlayer = ({ src, title, showDownload = true }: VideoPlayerProp
     setDlProgress(0);
     try {
       const url = type === "compressed" ? compressedDlUrl : src;
-      const filename = type === "compressed" ? `${safeName}_comprimido.mp4` : `${safeName}.mp4`;
+      const filename = type === "compressed" ? `${safeName}_comprimido.mp4` : `${safeName}.${extension}`;
       await downloadBlob(url, filename, (pct) => setDlProgress(pct));
     } catch (err) {
       console.error("Error al descargar:", err);
@@ -92,7 +83,7 @@ export const VideoPlayer = ({ src, title, showDownload = true }: VideoPlayerProp
       <div className={classes.wrapper}>
         {/* Spinner mientras carga */}
         <AnimatePresence>
-          {!videoLoaded && (
+          {!videoLoaded && !videoError && (
             <motion.div
               className={classes.loadingOverlay}
               initial={{ opacity: 1 }}
@@ -108,32 +99,37 @@ export const VideoPlayer = ({ src, title, showDownload = true }: VideoPlayerProp
           className={classes.video}
           src={playbackUrl}
           controls
+          autoPlay={autoPlay}
           preload="metadata"
+          onError={() => setVideoError(true)}
+          onLoadedMetadata={() => setVideoLoaded(true)}
           onCanPlay={() => setVideoLoaded(true)}
           onPlay={() => setVideoLoaded(true)}
           playsInline
         />
       </div>
+      {videoError && <p role="status">No pudimos reproducir este video. Puedes intentar descargar el original.</p>}
 
       {/* Botones de descarga */}
       {showDownload && src && (
         <div className={classes.actions}>
           <span className={classes.actionsLabel}>Descargar</span>
 
-          {/* Descarga comprimida (recomendada) */}
-          <motion.button
-            className={`${classes.downloadBtn} ${classes.downloadBtnPrimary}`}
-            onClick={() => handleDownload("compressed")}
-            disabled={downloading !== null}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-            title="~50% más liviano, buena calidad"
-          >
-            <IconDownload size={13} />
-            {downloading === "compressed"
-              ? `Descargando ${dlProgress}%`
-              : "Comprimido (recomendado)"}
-          </motion.button>
+          {canCompress && (
+            <motion.button
+              className={`${classes.downloadBtn} ${classes.downloadBtnPrimary}`}
+              onClick={() => handleDownload("compressed")}
+              disabled={downloading !== null}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              title="~50% más liviano, buena calidad"
+            >
+              <IconDownload size={13} />
+              {downloading === "compressed"
+                ? `Descargando ${dlProgress}%`
+                : "Comprimido (recomendado)"}
+            </motion.button>
+          )}
 
           {/* Descarga original */}
           <motion.button

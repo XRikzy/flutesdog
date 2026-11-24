@@ -1,6 +1,7 @@
 import { useForm } from "@mantine/form";
 import { EditVideos } from "../../../constants/documents";
 import { regex } from "../../../utils/regex";
+import { isThumbnailUrl } from "../../../utils/clipThumbnail";
 
 export const useClipsEditForm = (data: EditVideos | undefined) => {
   const editForm = useForm({
@@ -10,8 +11,10 @@ export const useClipsEditForm = (data: EditVideos | undefined) => {
       tag: data?.tag || ["Gracioso"],
       embed: data?.embed || "",
       videoUrl: data?.videoUrl || "",
+      thumbnailUrl: data?.thumbnailUrl || "",
     },
     validate: {
+      thumbnailUrl: (value) => !value.trim() || isThumbnailUrl(value.trim()) ? null : "Introduce una URL HTTPS pública.",
       title: (value: string) =>
         value.trim() === "" ? "Escribe un título primero" : null,
       embed: (value: string, values) => {

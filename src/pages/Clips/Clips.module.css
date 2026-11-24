@@ -119,6 +119,43 @@
   box-shadow: var(--shadow-blue);
 }
 
+.playPreview {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  color: white;
+  background: linear-gradient(#0008, #000b), url("/assets/hero.png") center / cover;
+  cursor: pointer;
+}
+
+.clipThumbnail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.playLabel {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: var(--radius-sm);
+  background: #000b;
+}
+
+.playPreview:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
+
 .iframeWrapper {
   position: relative;
   width: 100%;

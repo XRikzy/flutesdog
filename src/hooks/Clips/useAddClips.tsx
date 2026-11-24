@@ -11,6 +11,7 @@ export const useAddClips = () => {
       await AddClips(data);
     } catch (err) {
       setError(`Parece que no pudimos crear el clip:  ${err}`);
+      throw err;
     } finally {
       setLoading(false);
     }

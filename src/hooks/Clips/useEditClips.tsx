@@ -13,6 +13,7 @@ export const useEditClips = () => {
         tag: string[];
         embed?: string;
         videoUrl?: string;
+        thumbnailUrl?: string;
       }
     ) => {
       setLoading(true);

@@ -1,5 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from "react";
-import { IKContext, IKUpload } from "imagekitio-react";
+import { useState } from "react";
 import { Tooltip, TextInput, rem, Modal, Button, Text, Group } from "@mantine/core";
 import {
   IconPlus,
@@ -28,30 +27,8 @@ function formatDate(dateVal?: any): string {
 }
 
 export function ScreenshotsTable() {
-  const {
-    authenticator,
-    images,
-    loading,
-    publicKey,
-    urlEndpoint,
-    fetchImages,
-  } = useAddScreenshot();
-
-  const IKUploadRef = useRef<HTMLInputElement | null>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [progress, setProgress] = useState<number>(0);
+  const { images, loading, fetchImages, addScreenshot, uploading, progress } = useAddScreenshot();
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Efecto para disparar la subida una vez que el estado 'file' se ha actualizado y React ha re-renderizado <IKUpload> con el 'fileName' correcto.
-  useEffect(() => {
-    if (file && IKUploadRef.current) {
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(file);
-      IKUploadRef.current.files = dataTransfer.files;
-      const event = new Event("change", { bubbles: true });
-      IKUploadRef.current.dispatchEvent(event);
-    }
-  }, [file]);
 
   // Control de eliminación
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -93,17 +70,6 @@ export function ScreenshotsTable() {
       setDeleting(false);
     }
   };
-
-  const handleOnSuccess = useCallback(() => {
-    fetchImages();
-    notifications.show({
-      title: "¡Agregado!",
-      message: "Screenshot subida correctamente.",
-      color: "blue",
-    });
-    setProgress(0);
-    setFile(null); // Resetear archivo
-  }, [fetchImages]);
 
   const safeImages = Array.isArray(images) ? images : [];
   const filteredImages = safeImages.filter((img) =>
@@ -179,156 +145,130 @@ export function ScreenshotsTable() {
 
   return (
     <div className={classes.container}>
-      <IKContext
-        publicKey={publicKey}
-        urlEndpoint={urlEndpoint}
-        authenticator={authenticator}
-      >
-        <IKUpload
-          ref={IKUploadRef}
-          urlEndpoint={urlEndpoint}
-          fileName={file?.name}
-          folder="Flutesdog"
-          onUploadProgress={(p) =>
-            setProgress(Math.round((p.loaded / p.total) * 100))
+      {/* Barra superior de búsqueda y subida */}
+      <div className={classes.searchBar}>
+        <TextInput
+          placeholder="Buscar screenshots por nombre..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          leftSection={
+            <IconSearch
+              style={{ width: rem(15), height: rem(15) }}
+              stroke={1.5}
+            />
           }
-          onSuccess={handleOnSuccess}
-          onError={() => {
-            notifications.show({
-              title: "Oops",
-              message: "No pudimos subir la imagen.",
-              color: "red",
-            });
-            setProgress(0);
-            setFile(null); // Resetear archivo
-          }}
-          hidden
-          accept="image/png,image/jpeg"
-        />
-
-        {/* Barra superior de búsqueda y subida */}
-        <div className={classes.searchBar}>
-          <TextInput
-            placeholder="Buscar screenshots por nombre..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            leftSection={
-              <IconSearch
-                style={{ width: rem(15), height: rem(15) }}
-                stroke={1.5}
-              />
-            }
-            styles={{
-              root: { flex: 1 },
-              input: {
-                backgroundColor: "var(--bg-surface)",
-                borderColor: "var(--border)",
-                color: "var(--text-primary)",
-                height: "36px",
-                fontFamily: "var(--font-body)",
-                "&:focus": {
-                  borderColor: "var(--accent)",
-                },
+          styles={{
+            root: { flex: 1 },
+            input: {
+              backgroundColor: "var(--bg-surface)",
+              borderColor: "var(--border)",
+              color: "var(--text-primary)",
+              height: "36px",
+              fontFamily: "var(--font-body)",
+              "&:focus": {
+                borderColor: "var(--accent)",
               },
+            },
+          }}
+        />
+        <motion.label
+          className={classes.uploadButton}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          title="Subir nueva screenshot"
+        >
+          <input
+            type="file"
+            accept="image/png,image/jpeg"
+            style={{ display: "none" }}
+            disabled={uploading}
+            onChange={(e) => {
+              const file = e.currentTarget.files?.[0];
+              e.currentTarget.value = "";
+              void addScreenshot(file);
             }}
           />
-          <motion.label
-            className={classes.uploadButton}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            title="Subir nueva screenshot"
+          <IconPlus size={16} />
+          <span>Subir Screenshot</span>
+        </motion.label>
+      </div>
+
+      {/* Progreso de subida */}
+      <AnimatePresence>
+        {uploading && (
+          <motion.div
+            className={classes.progressWrapper}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
           >
-            <input
-              type="file"
-              accept="image/png,image/jpeg"
-              style={{ display: "none" }}
-              onChange={(e) => {
-                const f = e.target.files?.[0] ?? null;
-                setFile(f);
-              }}
-            />
-            <IconPlus size={16} />
-            <span>Subir Screenshot</span>
-          </motion.label>
-        </div>
+            <div className={classes.progressBar}>
+              <motion.div
+                className={classes.progressFill}
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.2 }}
+              />
+            </div>
+            <span className={classes.progressLabel}>{progress}%</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-        {/* Progreso de subida */}
-        <AnimatePresence>
-          {progress > 0 && (
-            <motion.div
-              className={classes.progressWrapper}
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-            >
-              <div className={classes.progressBar}>
-                <motion.div
-                  className={classes.progressFill}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${progress}%` }}
-                  transition={{ duration: 0.2 }}
-                />
-              </div>
-              <span className={classes.progressLabel}>{progress}%</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Tabla de screenshots */}
-        <div className={classes.tableCard}>
-          <div className={classes.tableScroll}>
-            <table className={classes.table}>
-              <thead>
+      {/* Tabla de screenshots */}
+      <div className={classes.tableCard}>
+        <div className={classes.tableScroll}>
+          <table className={classes.table}>
+            <thead>
+              <tr>
+                <th className={classes.th} style={{ width: "80px" }}>Miniatura</th>
+                <th className={classes.th}>Nombre del archivo</th>
+                <th className={classes.th} style={{ width: "120px" }}>Tamaño</th>
+                <th className={classes.th} style={{ width: "140px" }}>Fecha Subida</th>
+                <th className={classes.th} style={{ width: "100px" }}>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
                 <tr>
-                  <th className={classes.th} style={{ width: "80px" }}>Miniatura</th>
-                  <th className={classes.th}>Nombre del archivo</th>
-                  <th className={classes.th} style={{ width: "120px" }}>Tamaño</th>
-                  <th className={classes.th} style={{ width: "140px" }}>Fecha Subida</th>
-                  <th className={classes.th} style={{ width: "100px" }}>Acciones</th>
+                  <td
+                    colSpan={5}
+                    className={classes.td}
+                    style={{
+                      textAlign: "center",
+                      padding: "40px",
+                      color: "var(--text-muted)",
+                    }}
+                  >
+                    Cargando screenshots...
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className={classes.td}
-                      style={{
-                        textAlign: "center",
-                        padding: "40px",
-                        color: "var(--text-muted)",
-                      }}
-                    >
-                      Cargando screenshots...
-                    </td>
-                  </tr>
-                ) : rows.length > 0 ? (
-                  rows
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className={classes.td}
-                      style={{
-                        textAlign: "center",
-                        padding: "40px",
-                        color: "var(--text-muted)",
-                      }}
-                    >
-                      <IconPhoto
-                        size={36}
-                        stroke={1}
-                        style={{ marginBottom: "8px", opacity: 0.5 }}
-                      />
-                      <p>No se encontraron screenshots.</p>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+              ) : rows.length > 0 ? (
+                rows
+              ) : (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className={classes.td}
+                    style={{
+                      textAlign: "center",
+                      padding: "40px",
+                      color: "var(--text-muted)",
+                    }}
+                  >
+                    <IconPhoto
+                      size={36}
+                      stroke={1}
+                      style={{ marginBottom: "8px", opacity: 0.5 }}
+                    />
+                    <p>No se encontraron screenshots.</p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-      </IKContext>
+      </div>
 
       {/* Modal Confirmación de Eliminación */}
       <Modal
@@ -350,7 +290,7 @@ export function ScreenshotsTable() {
       >
         <Text size="sm" style={{ color: "var(--text-secondary)" }}>
           ¿Estás seguro de realizar esta acción con la screenshot{" "}
-          <strong>{deleteFileName}</strong>? Esta acción la borrará permanentemente de ImageKit y no se podrá deshacer.
+          <strong>{deleteFileName}</strong>? Esta acción la borrará permanentemente y no se podrá deshacer.
         </Text>
         <Group justify="flex-end" mt="xl">
           <Button

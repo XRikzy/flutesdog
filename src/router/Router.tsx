@@ -1,6 +1,8 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { LandingPage } from '../components'
 import { Screenshots, Clips, Dashboard, Home } from '../pages'
+import { ClipDetail } from '../pages/Clips/ClipDetail'
+import { CollectionsPage } from '../pages/Collections/CollectionsPage'
 
 const router = createBrowserRouter([
   {
@@ -15,8 +17,16 @@ const router = createBrowserRouter([
         element: <Clips />
       },
       {
+        path: '/clips/:clipId',
+        element: <ClipDetail />
+      },
+      {
         path: '/screenshots',
         element: <Screenshots />
+      },
+      {
+        path: '/colecciones/:collectionId?',
+        element: <CollectionsPage />
       },
       {
         path: '/dashboard',

@@ -24,6 +24,7 @@ export const ClipModalEdit = ({ opened, close, refetch, data }: EditProps) => {
         tag: data.tag || [],
         embed: data.embed || "",
         videoUrl: data.videoUrl || "",
+        thumbnailUrl: data.thumbnailUrl || "",
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -42,9 +43,11 @@ export const ClipModalEdit = ({ opened, close, refetch, data }: EditProps) => {
           tag: string[];
           embed?: string;
           videoUrl?: string;
+          thumbnailUrl: string;
         } = {
           title: values.title,
           tag: values.tag,
+          thumbnailUrl: values.thumbnailUrl.trim(),
         };
 
         if (data.videoUrl) {
@@ -109,7 +112,7 @@ export const ClipModalEdit = ({ opened, close, refetch, data }: EditProps) => {
 
         {data.videoUrl ? (
           <TextInput
-            label="Video URL (ImageKit)"
+            label="URL del video"
             value={data.videoUrl}
             disabled
             mt="md"
@@ -131,6 +134,15 @@ export const ClipModalEdit = ({ opened, close, refetch, data }: EditProps) => {
             {...editForm.getInputProps("embed")}
           />
         )}
+
+        <TextInput
+          label="URL de la portada"
+          description="Imagen pública HTTPS. Déjala vacía para usar la portada automática."
+          placeholder="https://media.ejemplo.com/portadas/clip.jpg"
+          mt="md"
+          key={editForm.key("thumbnailUrl")}
+          {...editForm.getInputProps("thumbnailUrl")}
+        />
 
         <Group justify="flex-end" mt="xl">
           <Button

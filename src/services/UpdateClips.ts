@@ -2,7 +2,7 @@ import { db, doc, updateDoc } from "../webservice/firebase";
 
 export const UpdateClip = async (
   id: string,
-  updatedData: Partial<{ title: string; tag: string[]; embed: string; videoUrl: string }>
+  updatedData: Partial<{ title: string; tag: string[]; embed: string; videoUrl: string; thumbnailUrl: string }>
 ) => {
   try {
     const clipRef = doc(db, "Clips", id);

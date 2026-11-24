@@ -1,31 +1,23 @@
-import { useState } from "react";
-import { Container, Skeleton, SimpleGrid } from "@mantine/core";
-import { IconSearch, IconPlus, IconVideoOff } from "@tabler/icons-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
+import { Button, Container, Skeleton, SimpleGrid } from "@mantine/core";
+import { IconSearch, IconPlus, IconVideoOff, IconPlayerPlay } from "@tabler/icons-react";
+import { motion } from "framer-motion";
 import { useDisclosure } from "@mantine/hooks";
 import { useGetClips } from "../../hooks/Clips/useGetClips";
 import { ClipsModalAdd } from "../Dashboard/components";
-import { VideoPlayer } from "../../components/VideoPlayer/VideoPlayer";
+import { ClipShareActions } from "../../components/ClipShareActions";
+import { ClipPlayback } from "./ClipPlayback";
+import { getClipThumbnail } from "../../utils/clipThumbnail";
 import classes from "./Clips.module.css";
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
-  },
-} as const;
-
-const stagger = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.07 },
-  },
-} as const;
-
 export const Clips = () => {
-  const { data, loading, refetch } = useGetClips();
+  const { data, error, loading, refetch } = useGetClips();
+  const [showInitialSkeleton, setShowInitialSkeleton] = useState(true);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setShowInitialSkeleton(false), 180);
+    return () => window.clearTimeout(timer);
+  }, []);
+  const [activeClipId, setActiveClipId] = useState<string | null>(null);
   const [opened, { open, close }] = useDisclosure(false);
   const [clipTitle, setClipTitle] = useState("");
   const [selectedTag, setSelectedTag] = useState("Todos");
@@ -60,7 +52,7 @@ export const Clips = () => {
     const matchesTag =
       selectedTag === "Todos" || (clip.tag && clip.tag.includes(selectedTag));
 
-    // 3. Filtrar por origen (ImageKit nativo vs YouTube legacy)
+    // 3. Filtrar por origen (archivo de video vs YouTube legacy)
     const matchesOrigin =
       selectedOrigin === "all" ||
       (selectedOrigin === "native" && !!clip.videoUrl) ||
@@ -201,13 +193,18 @@ export const Clips = () => {
 
       {/* Content */}
       <Container size="xl" py="xl">
-        {loading ? (
-          <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
+        {error && (
+          <p role="status">
+            {error} <Button variant="subtle" size="xs" onClick={refetch}>Reintentar</Button>
+          </p>
+        )}
+        {loading || showInitialSkeleton ? (
+          <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg" role="status" aria-label="Cargando clips">
             {Array.from({ length: 6 }).map((_, i) => (
               <Skeleton key={i} height={280} radius="md" />
             ))}
           </SimpleGrid>
-        ) : displayData.length === 0 ? (
+        ) : displayData.length === 0 ? (error ? null : (
           <motion.div
             className={classes.emptyState}
             initial={{ opacity: 0, y: 20 }}
@@ -221,33 +218,26 @@ export const Clips = () => {
                 : "Aún no hay clips cargados. ¡Agrega el primero!"}
             </p>
           </motion.div>
-        ) : (
-          <motion.div variants={stagger} initial="hidden" animate="visible">
+        )) : (
             <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
-              <AnimatePresence>
-                {displayData.map(({ id, title, embed, videoUrl, tag }) => (
-                  <motion.article
-                    key={id}
-                    className={classes.card}
-                    variants={cardVariants}
-                    layout
-                    whileHover={{ y: -4, borderColor: "var(--border-accent)" }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {/* Video: ImageKit nativo o YouTube embed legacy */}
-                    {videoUrl ? (
-                      <VideoPlayer src={videoUrl} title={title} showDownload />
+                {displayData.map(({ id, title, embed, videoUrl, tag, thumbnailUrl }) => {
+                  const cover = getClipThumbnail({ thumbnailUrl, videoUrl, embed });
+                  return (
+                  <article key={id} className={classes.card}>
+                    {activeClipId === id || (!videoUrl && !embed) ? (
+                      <ClipPlayback title={title} videoUrl={videoUrl} embed={embed} autoPlay />
                     ) : (
-                      <div className={classes.iframeWrapper}>
-                        <iframe
-                          src={embed}
-                          title={title}
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                          className={classes.iframe}
+                      <button type="button" className={classes.playPreview} aria-label={`Reproducir ${title}`} onClick={() => setActiveClipId(id)}>
+                        {cover && <img
+                          key={cover}
+                          src={cover}
+                          alt=""
                           loading="lazy"
-                        />
-                      </div>
+                          className={classes.clipThumbnail}
+                          onError={(event) => { event.currentTarget.hidden = true; }}
+                        />}
+                        <span className={classes.playLabel}><IconPlayerPlay size={26} aria-hidden="true" /> Reproducir</span>
+                      </button>
                     )}
 
                     {/* Info */}
@@ -262,12 +252,12 @@ export const Clips = () => {
                           ))}
                         </div>
                       )}
+                      <ClipShareActions id={id} />
                     </div>
-                  </motion.article>
-                ))}
-              </AnimatePresence>
+                  </article>
+                  );
+                })}
             </SimpleGrid>
-          </motion.div>
         )}
       </Container>
 

@@ -4,8 +4,9 @@ export interface Ivideos {
   tag: string[];
   /** URL de embed de YouTube (clips legacy) */
   embed?: string;
-  /** URL de ImageKit (clips nuevos) */
+  /** URL del archivo de video */
   videoUrl?: string;
+  thumbnailUrl?: string;
   createdAt?: string;
 }
 
@@ -15,6 +16,7 @@ export type EditVideos = {
   tag: string[];
   embed?: string;
   videoUrl?: string;
+  thumbnailUrl?: string;
   createdAt?: string;
 };
 
@@ -22,7 +24,7 @@ export type AddClipValues = {
   title: string;
   /** URL de embed YouTube — solo para clips legacy */
   embed?: string;
-  /** URL de ImageKit — para clips nuevos */
+  /** URL del archivo de video */
   videoUrl?: string;
   tag: string[];
   createdAt?: string;

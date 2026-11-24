@@ -18,6 +18,7 @@ import { useDeleteClips } from "../../../hooks/Clips/useDeleteClips";
 import { ClipsModalAdd } from "./Modals/ClipsModalAdd";
 import { ClipsModalDelete } from "./Modals/ClipsModalDelete";
 import { ClipModalEdit } from "./Modals/ClipModalEdit";
+import { IMAGEKIT_ENDPOINT, withImageKitTransform } from "../../../utils/imageKit";
 import { EditVideos } from "../../../constants/documents";
 import classes from "./ClipsTable.module.css";
 
@@ -31,13 +32,8 @@ function getYoutubeThumbnail(embedUrl: string): string {
 }
 
 function getImageKitPoster(videoUrl: string): string {
-  if (!videoUrl) return "";
-  const cleanUrl = videoUrl.replace(/\.[^.]+$/, ".jpg");
-  const endpoint = "https://ik.imagekit.io/ru9ftzizk/";
-  if (cleanUrl.includes(endpoint)) {
-    return cleanUrl.replace(endpoint, `${endpoint}tr:so-2,w-240/`);
-  }
-  return cleanUrl;
+  if (!videoUrl.startsWith(IMAGEKIT_ENDPOINT)) return "";
+  return withImageKitTransform(videoUrl.replace(/\.[^.]+$/, ".jpg"), "so-2,w-240");
 }
 
 export function ClipsTable() {
@@ -75,7 +71,8 @@ export function ClipsTable() {
   );
 
   const rows = filteredData.map((row) => {
-    const isImageKit = !!row.videoUrl;
+    const isNativeVideo = !!row.videoUrl;
+    const provider = row.videoUrl ? (row.videoUrl.startsWith(IMAGEKIT_ENDPOINT) ? "ImageKit" : "Archivo") : "YouTube";
     const thumbUrl = row.videoUrl
       ? getImageKitPoster(row.videoUrl)
       : getYoutubeThumbnail(row.embed || "");
@@ -120,10 +117,10 @@ export function ClipsTable() {
         <td className={classes.td}>
           <span
             className={`${classes.typeBadge} ${
-              isImageKit ? classes.typeImageKit : classes.typeYouTube
+              isNativeVideo ? classes.typeImageKit : classes.typeYouTube
             }`}
           >
-            {isImageKit ? "ImageKit" : "YouTube"}
+            {provider}
           </span>
         </td>
 

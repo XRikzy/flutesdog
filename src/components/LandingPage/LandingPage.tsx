@@ -1,10 +1,16 @@
-import { useState } from "react";
-import { Container, Skeleton, Title } from "@mantine/core";
+import { useEffect, useState } from "react";
+import { Anchor, Container, Image, Skeleton, Stack, Title } from "@mantine/core";
+import { Link } from "react-router-dom";
 import { IconPlus } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Hero } from "./Hero/Hero";
 import { useGetClips } from "../../hooks/Clips/useGetClips";
+import { ClipShareActions } from "../ClipShareActions";
 import { VideoPlayer } from "../VideoPlayer/VideoPlayer";
+import { useCollections } from "../../hooks/useCollections";
+import { CollectionCard } from "../../pages/Collections/CollectionsPage";
+import { getScreenshotImages } from "../../pages/Screenshots/service/screenshot.service";
+import type { Images } from "../../pages/Screenshots/decorators/UImages";
 import classes from "./LandingPage.module.css";
 
 const faqs = [
@@ -74,6 +80,21 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 export const LandingPage = () => {
   const { data: clips, loading } = useGetClips();
+  const { data: collections } = useCollections();
+  const featured = collections?.items.find((item) => item.id === collections.featuredId);
+  const [latestImage, setLatestImage] = useState<Images>();
+
+  useEffect(() => {
+    let active = true;
+    getScreenshotImages().then((images) => {
+      if (!active) return;
+      const recent = images.filter((image) => image.url).sort(
+        (a, b) => (Date.parse(String(b.createdAt)) || 0) - (Date.parse(String(a.createdAt)) || 0),
+      );
+      setLatestImage(recent[0]);
+    }).catch(() => { /* The screenshot service can be unavailable independently. */ });
+    return () => { active = false; };
+  }, []);
 
   const latestClip = [...clips]
     .sort((a, b) => {
@@ -90,6 +111,14 @@ export const LandingPage = () => {
       {/* DIVIDER */}
       <div className={classes.divider} />
 
+      {featured && (
+        <Stack component="section" mb="xl" aria-label="Colección destacada">
+          <Title order={2}>Colección destacada</Title>
+          <CollectionCard item={featured} />
+          <Anchor component={Link} to="/colecciones">Ver todas las colecciones</Anchor>
+        </Stack>
+      )}
+
       {/* ÚLTIMO CLIP SUBIDO */}
       <motion.section
         className={classes.latestSection}
@@ -103,9 +132,6 @@ export const LandingPage = () => {
         <Title order={2} className={classes.sectionTitle}>
           Último clip subido
         </Title>
-        <p className={classes.sectionSubtitle}>
-          El momento más reciente de David mintiendonos a la cara
-        </p>
 
         {loading ? (
           <div className={classes.skeletonWrapper}>
@@ -114,7 +140,7 @@ export const LandingPage = () => {
         ) : latestClip ? (
           <div className={classes.latestClipWrapper}>
             {latestClip.videoUrl ? (
-              /* Clip nuevo en ImageKit — con descarga */
+              /* Archivo de video — con descarga */
               <VideoPlayer
                 src={latestClip.videoUrl}
                 title={latestClip.title}
@@ -141,6 +167,7 @@ export const LandingPage = () => {
                   </span>
                 ))}
               </div>
+              <ClipShareActions id={latestClip.id} />
             </div>
           </div>
         ) : (
@@ -149,6 +176,16 @@ export const LandingPage = () => {
           </p>
         )}
       </motion.section>
+
+      {latestImage?.url && (
+        <Stack component="section" mt="xl" aria-label="Última captura">
+          <Title order={2}>Última captura</Title>
+          <a href={latestImage.url} target="_blank" rel="noreferrer">
+            <Image src={latestImage.thumbnail || latestImage.url} alt={latestImage.name} loading="lazy" radius="md" mah={420} fit="contain" />
+          </a>
+          <Anchor component={Link} to="/screenshots">Ver galería</Anchor>
+        </Stack>
+      )}
 
       {/* DIVIDER */}
       <div className={classes.divider} />

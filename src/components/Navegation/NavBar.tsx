@@ -4,6 +4,7 @@ import "./navbar.css";
 const navItems = [
   { to: "/", label: "Inicio", end: true },
   { to: "/clips", label: "Clips" },
+  { to: "/colecciones", label: "Colecciones" },
   { to: "/screenshots", label: "Screenshots" },
   { to: "/dashboard", label: "Dashboard" },
 ];

@@ -7,9 +7,11 @@ import {
   IconBrandGoogle,
   IconAlertTriangle,
   IconLogout,
+  IconFolder,
 } from "@tabler/icons-react";
 import { useGetClips } from "../../hooks/Clips/useGetClips";
 import { ClipsTable, ScreenshotsTable } from "./components";
+import { CollectionsPanel } from "./components/CollectionsPanel";
 import { useAuth } from "../../context/AuthContext";
 import { notifications } from "@mantine/notifications";
 import classes from "./css/Dashboard.module.css";
@@ -17,6 +19,7 @@ import classes from "./css/Dashboard.module.css";
 const sections = [
   { id: "clips", label: "Clips", icon: IconClipboard },
   { id: "screenshots", label: "Screenshots", icon: IconScreenshot },
+  { id: "collections", label: "Colecciones", icon: IconFolder },
 ];
 
 export function Dashboard() {
@@ -164,7 +167,7 @@ export function Dashboard() {
 
           {/* Main content */}
           <main className={classes.content}>
-            {clipsLoading ? (
+            {active === "collections" ? <CollectionsPanel /> : clipsLoading ? (
               <div>
                 <Skeleton height={40} radius="md" mb="md" />
                 <Skeleton height={300} radius="md" />
