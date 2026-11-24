@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Button, Container, Select, Skeleton, SimpleGrid } from "@mantine/core";
-import { IconSearch, IconPlus, IconVideoOff, IconPlayerPlay, IconLayoutGrid, IconDownload, IconBrandYoutube, IconTag, IconX } from "@tabler/icons-react";
+import { IconSearch, IconPlus, IconVideoOff, IconLayoutGrid, IconDownload, IconBrandYoutube, IconTag, IconX } from "@tabler/icons-react";
 import { motion, useAnimate, useReducedMotion } from "motion/react";
 import { useDisclosure } from "@mantine/hooks";
 import { useGetClips } from "../../hooks/Clips/useGetClips";
 import { ClipsModalAdd } from "../Dashboard/components";
-import { ClipShareActions } from "../../components/ClipShareActions";
-import { ClipPlayback } from "./ClipPlayback";
-import { getClipThumbnail } from "../../utils/clipThumbnail";
+import { ClipsGrid } from "./ClipsGrid";
 import classes from "./Clips.module.css";
 
 const origins = [
@@ -26,7 +24,6 @@ export const Clips = () => {
     const timer = window.setTimeout(() => setShowInitialSkeleton(false), 180);
     return () => window.clearTimeout(timer);
   }, []);
-  const [activeClipId, setActiveClipId] = useState<string | null>(null);
   const [opened, { open, close }] = useDisclosure(false);
   const { search, key: locationKey } = useLocation();
   const searchQuery = new URLSearchParams(search).get("q") ?? "";
@@ -247,45 +244,7 @@ export const Clips = () => {
           </motion.div>
         )) : (
           <div ref={resultsRef}>
-            <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
-                {displayData.map(({ id, title, embed, videoUrl, tag, thumbnailUrl }) => {
-                  const cover = getClipThumbnail({ thumbnailUrl, videoUrl, embed });
-                  return (
-                  <article key={id} className={classes.card}>
-                    {activeClipId === id || (!videoUrl && !embed) ? (
-                      <ClipPlayback title={title} videoUrl={videoUrl} embed={embed} autoPlay />
-                    ) : (
-                      <button type="button" className={classes.playPreview} aria-label={`Reproducir ${title}`} onClick={() => setActiveClipId(id)}>
-                        {cover && <img
-                          key={cover}
-                          src={cover}
-                          alt=""
-                          loading="lazy"
-                          className={classes.clipThumbnail}
-                          onError={(event) => { event.currentTarget.hidden = true; }}
-                        />}
-                        <span className={classes.playLabel}><IconPlayerPlay size={26} aria-hidden="true" /> Reproducir</span>
-                      </button>
-                    )}
-
-                    {/* Info */}
-                    <div className={classes.cardBody}>
-                      <p className={classes.cardTitle}>{title}</p>
-                      {tag.length > 0 && (
-                        <div className={classes.tagsRow}>
-                          {tag.map((name, index) => (
-                            <span key={index} className={classes.tag}>
-                              {name}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      <ClipShareActions id={id} />
-                    </div>
-                  </article>
-                  );
-                })}
-            </SimpleGrid>
+            <ClipsGrid clips={displayData} />
           </div>
         )}
       </Container>

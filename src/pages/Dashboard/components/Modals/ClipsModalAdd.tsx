@@ -1,6 +1,6 @@
-import { useState, useCallback } from "react";
-import { Button, Group, Loader, Modal, TagsInput, Text, TextInput } from "@mantine/core";
-import { IconUpload, IconCheck, IconAlertCircle } from "@tabler/icons-react";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { Button, FileButton, Group, Image, Loader, Modal, Stack, TagsInput, Text, TextInput } from "@mantine/core";
+import { IconUpload, IconCheck, IconAlertCircle, IconPhotoPlus } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "motion/react";
 import { notifications } from "@mantine/notifications";
 import { AddClipValues } from "../../../../constants/documents";
@@ -29,7 +29,38 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
   const [uploadedUrl, setUploadedUrl] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState("");
+  const [thumbnail, setThumbnail] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState("");
+  const [saving, setSaving] = useState(false);
+  const thumbnailInput = useRef<() => void>(null);
+  const uploadedThumbnail = useRef<{ file: File; url: string }>();
+  const busy = loading || saving;
   const uploadInProgress = uploadState === "uploading" || uploadState === "processing";
+
+  useEffect(() => {
+    if (!thumbnail) return;
+    const url = URL.createObjectURL(thumbnail);
+    setThumbnailPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [thumbnail]);
+
+  const clearThumbnail = useCallback(() => {
+    setThumbnail(null);
+    setThumbnailPreview("");
+    uploadedThumbnail.current = undefined;
+    thumbnailInput.current?.();
+  }, []);
+
+  const selectThumbnail = (file: File | null) => {
+    if (!file || busy) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || !file.size || file.size > 10 * 1024 * 1024) {
+      notifications.show({ color: "red", message: "Elige una miniatura JPG, PNG o WebP de hasta 10 MiB." });
+      thumbnailInput.current?.();
+      return;
+    }
+    setThumbnail(file);
+    setThumbnailPreview("");
+  };
 
   const form = useForm({
     mode: "uncontrolled",
@@ -45,7 +76,8 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
     setUploadProgress(0);
     setUploadedUrl("");
     setSelectedFileName("");
-  }, [form]);
+    clearThumbnail();
+  }, [form, clearThumbnail]);
 
   const handleClose = useCallback(() => {
     if (uploadState !== "processing") handleReset();
@@ -81,22 +113,34 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
 
   const handleSubmit = useCallback(
     async (values: { title: string; tag: string[] }) => {
-      if (!uploadedUrl) return;
+      if (!uploadedUrl || busy) return;
+      setSaving(true);
       try {
+        let thumbnailUrl: string | undefined;
+        if (thumbnail) {
+          if (uploadedThumbnail.current?.file === thumbnail) thumbnailUrl = uploadedThumbnail.current.url;
+          else {
+            thumbnailUrl = await uploadMedia(thumbnail, "clip-thumbnail", () => {});
+            uploadedThumbnail.current = { file: thumbnail, url: thumbnailUrl };
+          }
+        }
         const clipData: AddClipValues = {
           title: values.title,
           tag: values.tag,
           videoUrl: uploadedUrl,
+          thumbnailUrl,
         };
         await addData(clipData);
         refetch();
         notifications.show({ title: "¡Clip agregado!", message: "El video se ha subido y guardado correctamente." });
         handleClose();
-      } catch {
-        notifications.show({ title: "Error", message: "No pudimos guardar el clip.", color: "red" });
+      } catch (error) {
+        notifications.show({ title: "Error", message: error instanceof Error ? error.message : "No pudimos guardar el clip.", color: "red" });
+      } finally {
+        setSaving(false);
       }
     },
-    [uploadedUrl, addData, refetch, handleClose]
+    [uploadedUrl, thumbnail, busy, addData, refetch, handleClose]
   );
 
   const canSave = uploadState === "done" && uploadedUrl !== "";
@@ -105,9 +149,9 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
     <Modal
       opened={opened}
       onClose={handleClose}
-      withCloseButton={uploadState !== "uploading" && !loading}
-      closeOnEscape={uploadState !== "uploading" && !loading}
-      closeOnClickOutside={!uploadInProgress && !loading}
+      withCloseButton={uploadState !== "uploading" && !busy}
+      closeOnEscape={uploadState !== "uploading" && !busy}
+      closeOnClickOutside={!uploadInProgress && !busy}
       title="Agregar clip"
       centered
       radius={15}
@@ -249,13 +293,28 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
         </div>
         <Text size="sm" c="dimmed" mt="xs">Máximo de {MAX_SIZE_MIB} MiB por video original.</Text>
 
+        <Stack gap="xs" mt="md">
+          <Text size="sm" fw={600}>Miniatura opcional</Text>
+          <Image src={thumbnail && thumbnailPreview ? thumbnailPreview : "/assets/hero.png"}
+            fallbackSrc="/assets/hero.png" alt="Vista previa de la miniatura" radius="sm"
+            style={{ aspectRatio: "16 / 9", maxWidth: 260, objectFit: "cover" }} />
+          <Group gap="xs">
+            <FileButton resetRef={thumbnailInput} onChange={selectThumbnail} accept="image/jpeg,image/png,image/webp">
+              {(props) => <Button {...props} type="button" variant="light" size="xs" disabled={busy} leftSection={<IconPhotoPlus size={16} />}>
+                {thumbnail ? "Cambiar miniatura" : "Elegir miniatura"}
+              </Button>}
+            </FileButton>
+            {thumbnail && <Button type="button" size="xs" variant="subtle" disabled={busy} onClick={clearThumbnail}>Usar predeterminada</Button>}
+          </Group>
+        </Stack>
+
         <Group justify="flex-end" mt="md">
-          <Button onClick={handleClose} disabled={uploadState === "uploading" || loading} variant="default" color="gray">
+          <Button onClick={handleClose} disabled={uploadState === "uploading" || busy} variant="default" color="gray">
             {uploadState === "processing" ? "Cerrar" : "Cancelar"}
           </Button>
           <Button
             type="submit"
-            loading={loading}
+            loading={busy}
             disabled={!canSave}
             title={!canSave ? "Primero sube un video" : ""}
           >

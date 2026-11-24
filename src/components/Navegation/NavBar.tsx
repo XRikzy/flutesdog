@@ -1,7 +1,7 @@
 import { Avatar, useMantineTheme } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { useLayoutEffect, useRef } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { IconHome, IconVideo, IconPhoto, IconFolders, IconSettings, IconUser } from "@tabler/icons-react";
 import { gsap } from "gsap";
 import { useAuth } from "../../context/AuthContext";
@@ -12,16 +12,17 @@ const navItems = [
   { to: "/clips", label: "Clips", icon: IconVideo },
   { to: "/screenshots", label: "Capturas", icon: IconPhoto },
   { to: "/colecciones", label: "Colecciones", icon: IconFolders },
-  { to: "/dashboard", label: "Dashboard", icon: IconSettings },
 ];
+const dashboardItem = { to: "/dashboard", label: "Dashboard", icon: IconSettings, end: true };
 
-export const NavBar = ({ opened, close }: { opened: boolean; close?: () => void }) => {
+export const NavBar = ({ opened, close, openAccount }: { opened: boolean; close?: () => void; openAccount: () => void }) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const { breakpoints } = useMantineTheme();
   const isDesktop = useMediaQuery(`(min-width: ${breakpoints.md})`, undefined, { getInitialValueInEffect: false });
   const visible = isDesktop || opened;
   const { pathname } = useLocation();
-  const { user, loading } = useAuth();
+  const { user, role, loading } = useAuth();
+  const isAdmin = !loading && Boolean(user) && role === "admin";
   const name = user?.displayName || user?.email || "Mi cuenta";
 
   useLayoutEffect(() => {
@@ -44,12 +45,12 @@ export const NavBar = ({ opened, close }: { opened: boolean; close?: () => void 
       gsap.from(activeLink, { "--library-indicator-scale": 0.24, duration: 0.24, ease: "power2.out" });
     });
     return () => media.revert();
-  }, [pathname, visible]);
+  }, [pathname, visible, isAdmin]);
 
   return (
     <div className="librarySidebar" ref={sidebarRef}>
       <nav className="libraryNav" aria-label="Navegación principal">
-        {navItems.map(({ to, label, icon: Icon, end }) => (
+        {(isAdmin ? [...navItems, dashboardItem] : navItems).map(({ to, label, icon: Icon, end }) => (
           <NavLink key={to} to={to} end={end} onClick={close}
             className={({ isActive }) => isActive ? "libraryLink libraryLinkActive" : "libraryLink"}>
             <Icon size={18} stroke={1.65} aria-hidden="true" />
@@ -58,7 +59,10 @@ export const NavBar = ({ opened, close }: { opened: boolean; close?: () => void 
         ))}
       </nav>
       <div className="libraryAccount">
-        <Link to="/dashboard" onClick={close} className="libraryAccountLink">
+        <button type="button" className="libraryAccountLink" aria-haspopup="dialog" onClick={() => {
+          close?.();
+          openAccount();
+        }}>
           <Avatar src={user?.photoURL} alt="" size={30} radius="xl" aria-hidden="true">
             <IconUser size={18} stroke={1.65} />
           </Avatar>
@@ -66,7 +70,7 @@ export const NavBar = ({ opened, close }: { opened: boolean; close?: () => void 
             <span title={user ? name : undefined}>{user ? name : loading ? "Cuenta" : "Iniciar sesión"}</span>
             {user && <small>Cuenta de Google</small>}
           </span>
-        </Link>
+        </button>
       </div>
     </div>
   );

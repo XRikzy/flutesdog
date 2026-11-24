@@ -92,7 +92,8 @@ export const LandingPage = () => {
   const { data: clips, loading } = useGetClips();
   const { data: collections } = useCollections();
   const featured = collections?.items.find((item) => item.id === collections.featuredId);
-  const [latestImage, setLatestImage] = useState<Images>();
+  const [recentImages, setRecentImages] = useState<Images[]>([]);
+  const latestImage = recentImages[0];
   const [playingRecentId, setPlayingRecentId] = useState<string>();
 
   useEffect(() => {
@@ -102,7 +103,7 @@ export const LandingPage = () => {
       const recent = images.filter((image) => image.url).sort(
         (a, b) => (Date.parse(String(b.createdAt)) || 0) - (Date.parse(String(a.createdAt)) || 0),
       );
-      setLatestImage(recent[0]);
+      setRecentImages(recent);
     }).catch(() => { /* The screenshot service can be unavailable independently. */ });
     return () => { active = false; };
   }, []);
@@ -181,7 +182,7 @@ export const LandingPage = () => {
             {featured && (
               <Stack component="section" className={classes.featurePanel} aria-label="Colección destacada">
                 <Title order={2} className={classes.sectionTitle}>Colección <span>destacada</span></Title>
-                <CollectionCard item={featured} />
+                <CollectionCard item={featured} images={recentImages} />
                 <Anchor component={Link} to="/colecciones">Ver todas las colecciones</Anchor>
               </Stack>
             )}

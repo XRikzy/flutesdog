@@ -26,6 +26,7 @@ export type AddClipValues = {
   embed?: string;
   /** URL del archivo de video */
   videoUrl?: string;
+  thumbnailUrl?: string;
   tag: string[];
   createdAt?: string;
 };

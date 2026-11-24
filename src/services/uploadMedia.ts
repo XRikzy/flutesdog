@@ -67,12 +67,12 @@ async function waitForClip(uploadId: string) {
 
 export async function uploadMedia(
   file: File,
-  kind: "clip" | "screenshot",
+  kind: "clip" | "screenshot" | "collection-cover" | "clip-thumbnail",
   onProgress: (percent: number) => void,
   onProcessing?: () => void,
 ) {
   const headers = await mediaAuthHeaders();
-  const uploadFile = kind === "screenshot" ? await compressScreenshot(file) : file;
+  const uploadFile = kind !== "clip" ? await compressScreenshot(file) : file;
   const { data } = await AxiosScreenshot.post<{ uploadUrl: string; url?: string; uploadId?: string }>("/uploads", {
     kind,
     name: uploadFile.name,
@@ -100,6 +100,6 @@ export async function uploadMedia(
     onProcessing?.();
     return waitForClip(data.uploadId);
   }
-  if (!data.url) throw new Error("La API no devolvió una URL para la captura.");
+  if (!data.url) throw new Error("La API no devolvió una URL para la imagen.");
   return data.url;
 }

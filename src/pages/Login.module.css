@@ -1,0 +1,36 @@
+.dialog {
+  background: radial-gradient(ellipse at top left, #3b2637, transparent 66%), #171720;
+  border: 1px solid #ffffff1c;
+  box-shadow: 0 22px 72px #0009;
+}
+.dialog .header {
+  background: transparent;
+  border-bottom: 0;
+  padding: 20px 24px 12px;
+}
+.dialog .title {
+  color: #fff3e9;
+  font-size: 1.32rem;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+}
+.dialog .body { padding: 8px 24px 24px; }
+.dialog .close:hover { background: #ffffff14; }
+.intro {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+.intro .avatar { border: 1px solid #f5be7166; background: #412f30; }
+.intro .avatar span { color: #ffd196; background: #412f30; }
+.intro p { color: #dfcdd5; }
+.dialog .action {
+  min-height: 45px;
+  border-radius: 12px;
+  background: #f5be71;
+  color: #241a21;
+  box-shadow: inset 0 0 0 1px #ffdbab;
+}
+.dialog .action:hover { background: #ffd094; color: #241a21; }
+.dialog :focus-visible { outline-color: #f5be71; }

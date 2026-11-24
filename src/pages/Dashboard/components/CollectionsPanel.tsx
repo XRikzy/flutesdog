@@ -1,87 +1,150 @@
 import { useState } from "react";
-import { Alert, Button, Group, MultiSelect, Select, Stack, Textarea, TextInput, Title } from "@mantine/core";
-import { useForm } from "@mantine/form";
+import { ActionIcon, Alert, Badge, Button, Card, Group, Menu, Modal, SimpleGrid, Skeleton, Stack, Text, TextInput, Title } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
+import { IconDots, IconExternalLink, IconPencil, IconPlus, IconSearch, IconStar, IconStarFilled, IconTrash } from "@tabler/icons-react";
+import { Link } from "react-router-dom";
 import { useCollections } from "../../../hooks/useCollections";
-import { useGetClips } from "../../../hooks/Clips/useGetClips";
+import { deleteCollection, setFeaturedCollection, type MediaCollection } from "../../../services/collections";
+import { CollectionCover, collectionCoverSources } from "../../Collections/CollectionCover";
+import { CollectionEditor } from "../../Collections/CollectionEditor";
 import { useAddScreenshot } from "../../Screenshots/hook/useAddScreenshot";
-import { saveCollection, setFeaturedCollection, type CollectionValues } from "../../../services/collections";
-
-const empty: CollectionValues = { title: "", description: "", clipIds: [], screenshotIds: [] };
-
-function options(items: { value: string; label: string }[], selected: string[]) {
-  const known = new Set(items.map(({ value }) => value));
-  return [...items, ...selected.filter((value) => !known.has(value)).map((value) => ({ value, label: "Archivo no disponible" }))];
-}
+import classes from "./CollectionsPanel.module.css";
 
 export function CollectionsPanel() {
   const { data, loading, error, reload } = useCollections();
-  const { data: clips, loading: loadingClips, error: clipsError } = useGetClips();
-  const { images, loading: loadingImages } = useAddScreenshot();
-  const [id, setId] = useState("");
+  const { images } = useAddScreenshot();
+  const [query, setQuery] = useState("");
+  const [editor, setEditor] = useState<{ item?: MediaCollection } | null>(null);
+  const [toDelete, setToDelete] = useState<MediaCollection | null>(null);
   const [saving, setSaving] = useState(false);
-  const [featuring, setFeaturing] = useState(false);
-  const form = useForm<CollectionValues>({
-    initialValues: empty,
-    validate: { title: (value) => value.trim() ? null : "Escribe un título." },
-  });
+  const [mutation, setMutation] = useState<{ id: string; kind: "feature" | "delete" } | null>(null);
   const items = data?.items ?? [];
-  const choices = items.map((item) => ({ value: item.id, label: item.title }));
-  const clipOptions = options(clips.map((clip) => ({ value: clip.id, label: clip.title || "Clip" })), form.values.clipIds);
-  const imageOptions = options(images.flatMap((image) => image.fileId ? [{ value: image.fileId, label: image.name }] : []), form.values.screenshotIds);
+  const featuredId = data?.featuredId;
+  const search = query.trim().toLocaleLowerCase("es");
+  const filtered = items
+    .filter((item) => !search || `${item.title} ${item.description}`.toLocaleLowerCase("es").includes(search))
+    .sort((a, b) => Number(b.id === featuredId) - Number(a.id === featuredId));
 
-  const selectCollection = (nextId: string) => {
-    const item = items.find((entry) => entry.id === nextId);
-    setId(nextId);
-    form.setValues(item ?? empty);
-    form.clearErrors();
-  };
-
-  const save = async (values: CollectionValues) => {
-    setSaving(true);
+  const changeFeatured = async (item: MediaCollection) => {
+    if (mutation) return;
+    const featured = item.id !== featuredId;
+    setMutation({ id: item.id, kind: "feature" });
     try {
-      const { title, description, clipIds, screenshotIds } = values;
-      await saveCollection(id, { title, description, clipIds, screenshotIds });
-      selectCollection("");
-      reload();
-      notifications.show({ message: "Colección guardada." });
+      await setFeaturedCollection(item.id, featured);
+      await reload();
+      notifications.show({ message: featured ? "Colección destacada en Inicio." : "Colección retirada de Inicio." });
     } catch {
-      notifications.show({ color: "red", message: "No pudimos guardar la colección." });
+      notifications.show({ color: "red", message: "No pudimos cambiar la colección destacada." });
     } finally {
-      setSaving(false);
+      setMutation(null);
     }
   };
 
-  const feature = async (nextId: string | null) => {
-    setFeaturing(true);
+  const confirmDelete = async () => {
+    if (!toDelete || mutation) return;
+    setMutation({ id: toDelete.id, kind: "delete" });
     try {
-      await setFeaturedCollection(nextId ?? "");
-      reload();
+      await deleteCollection(toDelete.id);
+      await reload();
+      setToDelete(null);
+      notifications.show({ message: "Colección eliminada." });
     } catch {
-      notifications.show({ color: "red", message: "No pudimos actualizar la colección destacada." });
+      notifications.show({ color: "red", message: "No pudimos eliminar la colección. Intenta de nuevo." });
     } finally {
-      setFeaturing(false);
+      setMutation(null);
     }
   };
 
   return (
-    <Stack>
-      <Title order={2}>Colecciones</Title>
-      {error && <Alert color="red">No pudimos cargar las colecciones. <Button size="compact-xs" onClick={reload}>Reintentar</Button></Alert>}
-      {clipsError && <Alert color="red">{clipsError}</Alert>}
-      <Select label="Destacada en portada" data={choices} value={data?.featuredId || null} onChange={feature} clearable disabled={loading || error || featuring} />
-      <Select label="Editar colección" placeholder="Nueva colección" data={choices} value={id || null} onChange={(nextId) => selectCollection(nextId ?? "")} clearable disabled={loading || saving} />
-      <form onSubmit={form.onSubmit(save)}>
+    <Stack gap="lg">
+      <Group justify="space-between" align="center">
+        <div>
+          <Title order={2}>Colecciones</Title>
+          {data && <Text size="sm" c="dimmed">{items.length} {items.length === 1 ? "colección" : "colecciones"}</Text>}
+        </div>
+        <Button leftSection={<IconPlus size={17} />} onClick={() => setEditor({})}>Nueva colección</Button>
+      </Group>
+
+      {items.length > 0 && (
+        <TextInput value={query} onChange={(event) => setQuery(event.currentTarget.value)}
+          leftSection={<IconSearch size={17} />} placeholder="Buscar colecciones" aria-label="Buscar colecciones" />
+      )}
+
+      {error && <Alert color="red">
+        No pudimos actualizar la lista. <Button size="compact-xs" variant="subtle" onClick={reload}>Reintentar</Button>
+      </Alert>}
+      {loading ? <Skeleton h={210} /> : filtered.length > 0 ? (
+        <SimpleGrid cols={{ base: 1, sm: 2, xl: 3 }} spacing="md">
+          {filtered.map((item) => {
+            const featured = item.id === featuredId;
+            const publicPath = `/colecciones/${encodeURIComponent(item.id)}`;
+            return (
+              <Card key={item.id} withBorder radius="md" className={classes.card} data-featured={featured || undefined}>
+                <Card.Section className={classes.cover}>
+                  <CollectionCover sources={collectionCoverSources(item, images)} />
+                  {featured && <Badge className={classes.badge} leftSection={<IconStarFilled size={12} />}>Destacada</Badge>}
+                  <ActionIcon className={classes.coverEdit} variant="filled" color="dark" size="lg"
+                    onClick={() => setEditor({ item })} aria-label={`Editar portada de ${item.title}`}>
+                    <IconPencil size={17} />
+                  </ActionIcon>
+                </Card.Section>
+                <Stack gap="sm" className={classes.info}>
+                  <div>
+                    <Title order={3} size="h5" lineClamp={2}>{item.title}</Title>
+                    {item.description && <Text size="sm" c="dimmed" lineClamp={2}>{item.description}</Text>}
+                    <Text size="xs" c="dimmed" mt={6}>{item.clipIds.length} clips · {item.screenshotIds.length} capturas</Text>
+                  </div>
+                  <Group gap={6} className={classes.actions}>
+                    <Button variant="light" size="compact-sm" leftSection={<IconPencil size={15} />}
+                      onClick={() => setEditor({ item })}>Editar</Button>
+                    <Button size="compact-sm" variant={featured ? "light" : "subtle"} color={featured ? "yellow" : "blue"}
+                      aria-pressed={featured} leftSection={featured ? <IconStarFilled size={15} /> : <IconStar size={15} />}
+                      loading={mutation?.kind === "feature" && mutation.id === item.id} disabled={Boolean(mutation)}
+                      onClick={() => void changeFeatured(item)}>{featured ? "Quitar destacado" : "Destacar"}</Button>
+                    <Menu position="bottom-end" shadow="md" withinPortal>
+                      <Menu.Target>
+                        <ActionIcon variant="subtle" aria-label={`Más acciones de ${item.title}`}>
+                          <IconDots size={20} />
+                        </ActionIcon>
+                      </Menu.Target>
+                      <Menu.Dropdown>
+                        <Menu.Item component={Link} to={publicPath} leftSection={<IconExternalLink size={17} />}>Ver colección</Menu.Item>
+                        <Menu.Item color="red" disabled={Boolean(mutation)} leftSection={<IconTrash size={17} />}
+                          onClick={() => setToDelete(item)}>Eliminar colección</Menu.Item>
+                      </Menu.Dropdown>
+                    </Menu>
+                  </Group>
+                </Stack>
+              </Card>
+            );
+          })}
+        </SimpleGrid>
+      ) : !error && (
+        <Text c="dimmed">{search ? "Ninguna colección coincide con la búsqueda." : "Todavía no hay colecciones publicadas."}</Text>
+      )}
+
+      <Modal opened={Boolean(editor)} title={editor?.item ? `Editar ${editor.item.title}` : "Nueva colección"}
+        size="xl" onClose={() => { if (!saving) setEditor(null); }}
+        closeOnClickOutside={!saving} closeOnEscape={!saving} withCloseButton={!saving}>
+        {editor && <CollectionEditor key={editor.item?.id || "new"} item={editor.item} onBusyChange={setSaving}
+          onSaved={() => {
+            void reload();
+            setEditor(null);
+            notifications.show({ message: "Colección guardada." });
+          }} />}
+      </Modal>
+
+      <Modal opened={Boolean(toDelete)} title="Eliminar colección" centered
+        onClose={() => { if (!mutation) setToDelete(null); }}
+        closeOnClickOutside={!mutation} closeOnEscape={!mutation} withCloseButton={!mutation}>
         <Stack>
-          <TextInput label="Título" maxLength={80} required {...form.getInputProps("title")} />
-          <Textarea label="Descripción" maxLength={300} {...form.getInputProps("description")} />
-          <MultiSelect label="Clips" searchable data={clipOptions} disabled={loadingClips || saving} {...form.getInputProps("clipIds")} />
-          <MultiSelect label="Capturas" searchable data={imageOptions} disabled={loadingImages || saving} {...form.getInputProps("screenshotIds")} />
+          <Text>Se eliminará <strong>{toDelete?.title}</strong> de la biblioteca. Los clips y las capturas seguirán disponibles.</Text>
           <Group justify="flex-end">
-            <Button type="submit" loading={saving} disabled={loading || error}>{id ? "Guardar cambios" : "Crear colección"}</Button>
+            <Button variant="default" disabled={Boolean(mutation)} onClick={() => setToDelete(null)}>Cancelar</Button>
+            <Button color="red" loading={mutation?.kind === "delete"} onClick={() => void confirmDelete()}>Eliminar colección</Button>
           </Group>
         </Stack>
-      </form>
+      </Modal>
     </Stack>
   );
 }

@@ -48,6 +48,11 @@
 .libraryAccountLink {
   display: flex;
   align-items: center;
+  width: 100%;
+  text-align: start;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
   gap: 10px;
   min-height: 44px;
   padding: 4px 7px;

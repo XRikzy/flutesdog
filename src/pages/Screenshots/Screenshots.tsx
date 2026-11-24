@@ -1,42 +1,25 @@
-import { useCallback, useState } from "react";
-import { Container, SimpleGrid, Skeleton } from "@mantine/core";
+import { useState } from "react";
+import { Container } from "@mantine/core";
 import {
   IconPlus,
-  IconChevronLeft,
-  IconChevronRight,
-  IconX,
-  IconPhoto,
   IconSearch,
 } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "motion/react";
-import { notifications } from "@mantine/notifications";
+import { useOutletContext } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useAddScreenshot } from "./hook/useAddScreenshot";
 import classes from "./Screenshots.module.css";
+import { ScreenshotGallery } from "./ScreenshotGallery";
 
 export const Screenshots = () => {
   const { images, loading, addScreenshot, uploading, progress } = useAddScreenshot();
-  const { user, loading: authLoading, signInWithGoogle } = useAuth();
-  const [signingIn, setSigningIn] = useState(false);
-
-  const handleSignIn = async () => {
-    setSigningIn(true);
-    try {
-      await signInWithGoogle();
-    } catch {
-      notifications.show({ title: "Error", message: "No pudimos iniciar sesión con Google.", color: "red" });
-    } finally {
-      setSigningIn(false);
-    }
-  };
+  const { user, loading: authLoading } = useAuth();
+  const { openAccount } = useOutletContext<{ openAccount: () => void }>();
 
   // Filtros y ordenamiento
   const [searchQuery, setSearchQuery] = useState("");
   const [dateFilter, setDateFilter] = useState<"all" | "today" | "week" | "month">("all");
   const [sortBy, setSortBy] = useState<"recent" | "oldest" | "name" | "size">("recent");
-
-  // Lightbox state
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   // 1. Filtrado de imágenes en memoria
   const filteredImages = images.filter((img) => {
@@ -84,25 +67,9 @@ export const Screenshots = () => {
     return 0;
   });
 
-  const openLightbox = (i: number) => setLightboxIndex(i);
-  const closeLightbox = () => setLightboxIndex(null);
-  const prevImage = () =>
-    setLightboxIndex((i) => (i !== null ? (i - 1 + sortedImages.length) % sortedImages.length : null));
-  const nextImage = () =>
-    setLightboxIndex((i) => (i !== null ? (i + 1) % sortedImages.length : null));
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (lightboxIndex === null) return;
-      if (e.key === "ArrowLeft") prevImage();
-      if (e.key === "ArrowRight") nextImage();
-      if (e.key === "Escape") closeLightbox();
-    },
-    [lightboxIndex, sortedImages.length]
-  );
 
   return (
-    <div className={classes.page} onKeyDown={handleKeyDown} tabIndex={-1}>
+    <div className={classes.page}>
       {/* Header */}
       <div className={classes.topBar}>
         <Container size="xl">
@@ -153,15 +120,15 @@ export const Screenshots = () => {
                 />
                 <IconPlus size={16} />
                 <span>Nueva Screenshot</span>
-              </motion.label> : (
-                <motion.button
+              </motion.label> : !authLoading && (
+                <button
                   type="button"
+                  onClick={openAccount}
+                  aria-haspopup="dialog"
                   className={classes.uploadButton}
-                  disabled={authLoading || signingIn}
-                  onClick={handleSignIn}
                 >
                   Inicia sesión para subir
-                </motion.button>
+                </button>
               )}
             </div>
           </div>
@@ -259,126 +226,9 @@ export const Screenshots = () => {
         </Container>
       </div>
 
-      {/* Grid */}
       <Container size="xl" py="xl">
-        {loading ? (
-          <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} height={260} radius="md" />
-            ))}
-          </SimpleGrid>
-        ) : sortedImages.length === 0 ? (
-          <motion.div
-            className={classes.emptyState}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <IconPhoto size={52} stroke={1} color="var(--text-muted)" />
-            <p className={classes.emptyTitle}>Ninguna coincidencia</p>
-            <p className={classes.emptySubtitle}>
-              No se encontraron screenshots que coincidan con los filtros aplicados.
-            </p>
-          </motion.div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ staggerChildren: 0.06 }}
-          >
-            <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
-              {sortedImages.map(({ fileId, url, name }, index) => (
-                <motion.button
-                  key={fileId}
-                  className={classes.imageCard}
-                  onClick={() => openLightbox(index)}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05, duration: 0.4 }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  aria-label={`Ver screenshot: ${name}`}
-                >
-                  <img
-                    src={url}
-                    alt={name}
-                    className={classes.image}
-                    loading="lazy"
-                  />
-                  <div className={classes.imageOverlay}>
-                    <span className={classes.imageName}>{name}</span>
-                  </div>
-                </motion.button>
-              ))}
-            </SimpleGrid>
-          </motion.div>
-        )}
+        <ScreenshotGallery images={sortedImages} loading={loading} />
       </Container>
-
-      {/* Lightbox */}
-      <AnimatePresence>
-        {lightboxIndex !== null && sortedImages[lightboxIndex] && (
-          <motion.div
-            className={classes.lightbox}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            onClick={closeLightbox}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Vista de imagen"
-          >
-            {/* Close */}
-            <button
-              className={classes.lightboxClose}
-              onClick={closeLightbox}
-              aria-label="Cerrar"
-            >
-              <IconX size={22} />
-            </button>
-
-            {/* Counter */}
-            <span className={classes.lightboxCounter}>
-              {lightboxIndex + 1} / {sortedImages.length}
-            </span>
-
-            {/* Prev */}
-            <motion.button
-              className={`${classes.lightboxNav} ${classes.lightboxPrev}`}
-              onClick={(e) => { e.stopPropagation(); prevImage(); }}
-              whileHover={{ scale: 1.1 }}
-              aria-label="Imagen anterior"
-            >
-              <IconChevronLeft size={28} />
-            </motion.button>
-
-            {/* Image */}
-            <AnimatePresence mode="wait">
-              <motion.img
-                key={lightboxIndex}
-                src={sortedImages[lightboxIndex].url}
-                alt={sortedImages[lightboxIndex].name}
-                className={classes.lightboxImage}
-                initial={{ opacity: 0, scale: 0.95, x: 40 }}
-                animate={{ opacity: 1, scale: 1, x: 0 }}
-                exit={{ opacity: 0, scale: 0.95, x: -40 }}
-                transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                onClick={(e) => e.stopPropagation()}
-              />
-            </AnimatePresence>
-
-            {/* Next */}
-            <motion.button
-              className={`${classes.lightboxNav} ${classes.lightboxNext}`}
-              onClick={(e) => { e.stopPropagation(); nextImage(); }}
-              whileHover={{ scale: 1.1 }}
-              aria-label="Siguiente imagen"
-            >
-              <IconChevronRight size={28} />
-            </motion.button>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };

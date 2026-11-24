@@ -6,7 +6,7 @@ import {
   onAuthStateChanged,
   User as FirebaseUser,
 } from "firebase/auth";
-import { doc, getDoc, setDoc, getDocs, collection, limit, query } from "firebase/firestore";
+import { doc, getDoc, runTransaction } from "firebase/firestore";
 import { auth, db } from "../webservice/firebase";
 
 type AuthRole = "admin" | "user" | null;
@@ -27,48 +27,44 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let authChange = 0;
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setLoading(true);
+      const change = ++authChange;
+      setUser(currentUser);
+      setRole(null);
+      setLoading(Boolean(currentUser));
       if (currentUser) {
-        setUser(currentUser);
         try {
-          // Obtener rol del usuario de Firestore
           const userRef = doc(db, "Users", currentUser.uid);
           const userDoc = await getDoc(userRef);
-
-          if (userDoc.exists()) {
-            setRole(userDoc.data().role || "user");
-          } else {
-            // Si el documento no existe, creamos el usuario en Firestore.
-            // Regla especial: si es el PRIMER usuario en la colección, es Admin. Si no, es User.
-            const usersRef = collection(db, "Users");
-            const q = query(usersRef, limit(1));
-            const querySnapshot = await getDocs(q);
-            const isFirstUser = querySnapshot.empty;
-            const newRole = isFirstUser ? "admin" : "user";
-
-            await setDoc(userRef, {
+          if (change !== authChange) return;
+          const role = userDoc.exists() ? userDoc.data().role : await runTransaction(db, async (transaction) => {
+            const current = await transaction.get(userRef);
+            if (current.exists()) return current.data().role;
+            transaction.set(userRef, {
               uid: currentUser.uid,
               email: currentUser.email || "",
               displayName: currentUser.displayName || "",
               photoURL: currentUser.photoURL || "",
-              role: newRole,
+              role: "user",
               createdAt: new Date().toISOString(),
             });
-            setRole(newRole);
-          }
+            return "user";
+          });
+          if (change === authChange) setRole(role === "admin" ? "admin" : "user");
         } catch (error) {
           console.error("Error al obtener o guardar el rol del usuario:", error);
-          setRole("user"); // fallback seguro
+          if (change === authChange) setRole("user");
+        } finally {
+          if (change === authChange) setLoading(false);
         }
-      } else {
-        setUser(null);
-        setRole(null);
       }
-      setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      authChange++;
+      unsubscribe();
+    };
   }, []);
 
   const signInWithGoogle = async () => {
