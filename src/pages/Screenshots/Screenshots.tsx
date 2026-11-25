@@ -1,42 +1,39 @@
-import { useCallback, useState } from "react";
-import { Container, SimpleGrid, Skeleton } from "@mantine/core";
-import {
-  IconPlus,
-  IconChevronLeft,
-  IconChevronRight,
-  IconX,
-  IconPhoto,
-  IconSearch,
-} from "@tabler/icons-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { notifications } from "@mantine/notifications";
+import { useRef, useState } from "react";
+import { FileButton, Select } from "@mantine/core";
+import { IconAlertTriangle, IconArrowsSort, IconPlus, IconSearch } from "@tabler/icons-react";
+import { motion, AnimatePresence } from "motion/react";
+import { useOutletContext } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useAddScreenshot } from "./hook/useAddScreenshot";
+import { LibraryPage } from "../../components/LibraryPage";
+import library from "../../components/LibraryPage.module.css";
 import classes from "./Screenshots.module.css";
+import { ScreenshotGallery } from "./ScreenshotGallery";
+
+const dateOptions = [
+  { value: "all", label: "Todas" },
+  { value: "today", label: "Hoy" },
+  { value: "week", label: "Últimos 7 días" },
+  { value: "month", label: "Último mes" },
+] as const;
+
+const sortOptions = [
+  { value: "recent", label: "Más recientes" },
+  { value: "oldest", label: "Más antiguas" },
+  { value: "name", label: "Nombre (A–Z)" },
+  { value: "size", label: "Tamaño" },
+] as const;
 
 export const Screenshots = () => {
   const { images, loading, addScreenshot, uploading, progress } = useAddScreenshot();
-  const { user, loading: authLoading, signInWithGoogle } = useAuth();
-  const [signingIn, setSigningIn] = useState(false);
-
-  const handleSignIn = async () => {
-    setSigningIn(true);
-    try {
-      await signInWithGoogle();
-    } catch {
-      notifications.show({ title: "Error", message: "No pudimos iniciar sesión con Google.", color: "red" });
-    } finally {
-      setSigningIn(false);
-    }
-  };
+  const { user, loading: authLoading } = useAuth();
+  const { openAccount } = useOutletContext<{ openAccount: () => void }>();
+  const resetUpload = useRef<() => void>(null);
 
   // Filtros y ordenamiento
   const [searchQuery, setSearchQuery] = useState("");
-  const [dateFilter, setDateFilter] = useState<"all" | "today" | "week" | "month">("all");
-  const [sortBy, setSortBy] = useState<"recent" | "oldest" | "name" | "size">("recent");
-
-  // Lightbox state
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [dateFilter, setDateFilter] = useState<(typeof dateOptions)[number]["value"]>("all");
+  const [sortBy, setSortBy] = useState<(typeof sortOptions)[number]["value"]>("recent");
 
   // 1. Filtrado de imágenes en memoria
   const filteredImages = images.filter((img) => {
@@ -84,301 +81,99 @@ export const Screenshots = () => {
     return 0;
   });
 
-  const openLightbox = (i: number) => setLightboxIndex(i);
-  const closeLightbox = () => setLightboxIndex(null);
-  const prevImage = () =>
-    setLightboxIndex((i) => (i !== null ? (i - 1 + sortedImages.length) % sortedImages.length : null));
-  const nextImage = () =>
-    setLightboxIndex((i) => (i !== null ? (i + 1) % sortedImages.length : null));
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (lightboxIndex === null) return;
-      if (e.key === "ArrowLeft") prevImage();
-      if (e.key === "ArrowRight") nextImage();
-      if (e.key === "Escape") closeLightbox();
-    },
-    [lightboxIndex, sortedImages.length]
-  );
-
   return (
-    <div className={classes.page} onKeyDown={handleKeyDown} tabIndex={-1}>
-      {/* Header */}
-      <div className={classes.topBar}>
-        <Container size="xl">
-          <div className={classes.topBarInner}>
-            <div>
-              <h1 className={classes.pageTitle}>Screenshots</h1>
-              <p className={classes.pageSubtitle}>
-                {sortedImages.length} de {images.length} imagen{images.length !== 1 ? "es" : ""}
-              </p>
-            </div>
-            <div className={classes.controls}>
-              {/* Search */}
-              <div className={classes.searchWrapper}>
-                <IconSearch size={15} className={classes.searchIcon} />
-                <input
-                  type="text"
-                  placeholder="Buscar por nombre..."
-                  className={classes.searchInput}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  aria-label="Buscar screenshots"
-                  id="screenshots-search"
-                />
-              </div>
-
-              {/* Disclaimer */}
-              <span className={classes.disclaimer}>
-                ⚠️ Por favor no suban nada cuestionable
-              </span>
-              {/* Upload button */}
-              {user ? <motion.label
-                className={classes.uploadButton}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                aria-label="Subir nueva screenshot"
-                id="screenshots-upload-btn"
-              >
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg"
-                  style={{ display: "none" }}
-                  disabled={uploading}
-                  onChange={(e) => {
-                    const file = e.currentTarget.files?.[0];
-                    e.currentTarget.value = "";
-                    void addScreenshot(file);
-                  }}
-                />
-                <IconPlus size={16} />
-                <span>Nueva Screenshot</span>
-              </motion.label> : (
-                <motion.button
-                  type="button"
-                  className={classes.uploadButton}
-                  disabled={authLoading || signingIn}
-                  onClick={handleSignIn}
-                >
-                  Inicia sesión para subir
-                </motion.button>
+    <LibraryPage
+      title="Screenshots"
+      summary={loading ? "Cargando capturas…" : `${sortedImages.length} de ${images.length} capturas`}
+      actions={
+        <>
+          <div className={library.search}>
+            <IconSearch size={16} className={library.searchIcon} aria-hidden="true" />
+            <input
+              type="text"
+              placeholder="Buscar por nombre"
+              className={library.searchInput}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label="Buscar screenshots"
+              id="screenshots-search"
+            />
+          </div>
+          {user ? (
+            <FileButton accept="image/png,image/jpeg" resetRef={resetUpload} disabled={uploading}
+              onChange={(file) => {
+                resetUpload.current?.();
+                if (file) void addScreenshot(file);
+              }}>
+              {(props) => (
+                <button {...props} type="button" className={library.primary} id="screenshots-upload-btn" disabled={uploading}>
+                  <IconPlus size={17} aria-hidden="true" />
+                  Subir captura
+                </button>
               )}
-            </div>
-          </div>
-
-          {/* Upload progress */}
-          <AnimatePresence>
-            {uploading && (
-              <motion.div
-                className={classes.progressWrapper}
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-              >
-                <div className={classes.progressBar}>
-                  <motion.div
-                    className={classes.progressFill}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.3 }}
-                  />
-                </div>
-                <span className={classes.progressLabel}>{progress}%</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </Container>
-      </div>
-
-      {/* Filtros Bar */}
-      <div className={classes.filtersBar}>
-        <Container size="xl">
-          <div className={classes.filtersBarInner}>
-            {/* Filtro de Fecha */}
-            <div className={classes.filterGroup}>
-              <span className={classes.filterLabel}>Fecha</span>
-              <div className={classes.segmentedControl}>
-                <button
-                  className={`${classes.segment} ${dateFilter === "all" ? classes.segmentActive : ""}`}
-                  onClick={() => setDateFilter("all")}
-                >
-                  Todas
-                </button>
-                <button
-                  className={`${classes.segment} ${dateFilter === "today" ? classes.segmentActive : ""}`}
-                  onClick={() => setDateFilter("today")}
-                >
-                  Hoy
-                </button>
-                <button
-                  className={`${classes.segment} ${dateFilter === "week" ? classes.segmentActive : ""}`}
-                  onClick={() => setDateFilter("week")}
-                >
-                  Últimos 7 días
-                </button>
-                <button
-                  className={`${classes.segment} ${dateFilter === "month" ? classes.segmentActive : ""}`}
-                  onClick={() => setDateFilter("month")}
-                >
-                  Último mes
-                </button>
-              </div>
-            </div>
-
-            {/* Ordenamiento */}
-            <div className={classes.filterGroup}>
-              <span className={classes.filterLabel}>Ordenar por</span>
-              <div className={classes.segmentedControl}>
-                <button
-                  className={`${classes.segment} ${sortBy === "recent" ? classes.segmentActive : ""}`}
-                  onClick={() => setSortBy("recent")}
-                >
-                  Más recientes
-                </button>
-                <button
-                  className={`${classes.segment} ${sortBy === "oldest" ? classes.segmentActive : ""}`}
-                  onClick={() => setSortBy("oldest")}
-                >
-                  Más antiguos
-                </button>
-                <button
-                  className={`${classes.segment} ${sortBy === "name" ? classes.segmentActive : ""}`}
-                  onClick={() => setSortBy("name")}
-                >
-                  Nombre (A-Z)
-                </button>
-                <button
-                  className={`${classes.segment} ${sortBy === "size" ? classes.segmentActive : ""}`}
-                  onClick={() => setSortBy("size")}
-                >
-                  Tamaño
-                </button>
-              </div>
-            </div>
-          </div>
-        </Container>
-      </div>
-
-      {/* Grid */}
-      <Container size="xl" py="xl">
-        {loading ? (
-          <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} height={260} radius="md" />
-            ))}
-          </SimpleGrid>
-        ) : sortedImages.length === 0 ? (
-          <motion.div
-            className={classes.emptyState}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <IconPhoto size={52} stroke={1} color="var(--text-muted)" />
-            <p className={classes.emptyTitle}>Ninguna coincidencia</p>
-            <p className={classes.emptySubtitle}>
-              No se encontraron screenshots que coincidan con los filtros aplicados.
-            </p>
-          </motion.div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ staggerChildren: 0.06 }}
-          >
-            <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
-              {sortedImages.map(({ fileId, url, name }, index) => (
-                <motion.button
-                  key={fileId}
-                  className={classes.imageCard}
-                  onClick={() => openLightbox(index)}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05, duration: 0.4 }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  aria-label={`Ver screenshot: ${name}`}
-                >
-                  <img
-                    src={url}
-                    alt={name}
-                    className={classes.image}
-                    loading="lazy"
-                  />
-                  <div className={classes.imageOverlay}>
-                    <span className={classes.imageName}>{name}</span>
-                  </div>
-                </motion.button>
-              ))}
-            </SimpleGrid>
-          </motion.div>
-        )}
-      </Container>
-
-      {/* Lightbox */}
-      <AnimatePresence>
-        {lightboxIndex !== null && sortedImages[lightboxIndex] && (
-          <motion.div
-            className={classes.lightbox}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            onClick={closeLightbox}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Vista de imagen"
-          >
-            {/* Close */}
-            <button
-              className={classes.lightboxClose}
-              onClick={closeLightbox}
-              aria-label="Cerrar"
-            >
-              <IconX size={22} />
+            </FileButton>
+          ) : !authLoading && (
+            <button type="button" onClick={openAccount} aria-haspopup="dialog" className={library.primary}>
+              Inicia sesión para subir
             </button>
-
-            {/* Counter */}
-            <span className={classes.lightboxCounter}>
-              {lightboxIndex + 1} / {sortedImages.length}
-            </span>
-
-            {/* Prev */}
-            <motion.button
-              className={`${classes.lightboxNav} ${classes.lightboxPrev}`}
-              onClick={(e) => { e.stopPropagation(); prevImage(); }}
-              whileHover={{ scale: 1.1 }}
-              aria-label="Imagen anterior"
+          )}
+        </>
+      }
+      filters={
+        <>
+          <fieldset className={library.filterGroup}>
+            <legend className={library.filterLabel}>Fecha</legend>
+            <div className={library.segments}>
+              {dateOptions.map(({ value, label }) => (
+                <button key={value} type="button" className={library.segment}
+                  aria-pressed={dateFilter === value} onClick={() => setDateFilter(value)}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+          <Select
+            className={library.select}
+            classNames={{ label: library.filterLabel, input: library.selectInput, dropdown: library.selectDropdown }}
+            label="Ordenar por"
+            data={[...sortOptions]}
+            value={sortBy}
+            onChange={(value) => setSortBy(sortOptions.find((option) => option.value === value)?.value ?? "recent")}
+            allowDeselect={false}
+            leftSection={<IconArrowsSort size={17} aria-hidden="true" />}
+          />
+          <p className={classes.uploadNote}>
+            <IconAlertTriangle size={16} aria-hidden="true" />
+            Por favor, evita subir contenido inapropiado.
+          </p>
+        </>
+      }
+      feedback={
+        <AnimatePresence>
+          {uploading && (
+            <motion.div
+              className={classes.progressWrapper}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
             >
-              <IconChevronLeft size={28} />
-            </motion.button>
-
-            {/* Image */}
-            <AnimatePresence mode="wait">
-              <motion.img
-                key={lightboxIndex}
-                src={sortedImages[lightboxIndex].url}
-                alt={sortedImages[lightboxIndex].name}
-                className={classes.lightboxImage}
-                initial={{ opacity: 0, scale: 0.95, x: 40 }}
-                animate={{ opacity: 1, scale: 1, x: 0 }}
-                exit={{ opacity: 0, scale: 0.95, x: -40 }}
-                transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                onClick={(e) => e.stopPropagation()}
-              />
-            </AnimatePresence>
-
-            {/* Next */}
-            <motion.button
-              className={`${classes.lightboxNav} ${classes.lightboxNext}`}
-              onClick={(e) => { e.stopPropagation(); nextImage(); }}
-              whileHover={{ scale: 1.1 }}
-              aria-label="Siguiente imagen"
-            >
-              <IconChevronRight size={28} />
-            </motion.button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+              <div className={classes.progressBar} role="progressbar" aria-label="Subiendo captura" aria-valuenow={progress}>
+                <motion.div
+                  className={classes.progressFill}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
+              <span className={classes.progressLabel}>{progress}%</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      }
+    >
+      <ScreenshotGallery images={sortedImages} loading={loading}
+        emptyTitle={images.length ? "No encontramos capturas" : "Aún no hay capturas"}
+        emptyMessage={images.length ? undefined : "Las capturas que se suban aparecerán aquí."} />
+    </LibraryPage>
   );
 };

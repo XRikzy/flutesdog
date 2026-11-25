@@ -1,8 +1,9 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { LandingPage } from '../components'
 import { Screenshots, Clips, Dashboard, Home } from '../pages'
 import { ClipDetail } from '../pages/Clips/ClipDetail'
 import { CollectionsPage } from '../pages/Collections/CollectionsPage'
+import { RequireAdmin } from './RequireAdmin'
 
 const router = createBrowserRouter([
   {
@@ -29,8 +30,12 @@ const router = createBrowserRouter([
         element: <CollectionsPage />
       },
       {
-        path: '/dashboard',
-        element: <Dashboard />
+        path: '/login',
+        element: <Navigate to="/?cuenta=1" replace />
+      },
+      {
+        element: <RequireAdmin />,
+        children: [{ path: '/dashboard', element: <Dashboard /> }],
       },
     ]
   }

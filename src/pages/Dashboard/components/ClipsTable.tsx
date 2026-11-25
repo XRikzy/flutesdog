@@ -18,7 +18,8 @@ import { useDeleteClips } from "../../../hooks/Clips/useDeleteClips";
 import { ClipsModalAdd } from "./Modals/ClipsModalAdd";
 import { ClipsModalDelete } from "./Modals/ClipsModalDelete";
 import { ClipModalEdit } from "./Modals/ClipModalEdit";
-import { IMAGEKIT_ENDPOINT, withImageKitTransform } from "../../../utils/imageKit";
+import { IMAGEKIT_ENDPOINT } from "../../../utils/imageKit";
+import { getClipThumbnail } from "../../../utils/clipThumbnail";
 import { EditVideos } from "../../../constants/documents";
 import classes from "./ClipsTable.module.css";
 
@@ -29,11 +30,6 @@ function getYoutubeThumbnail(embedUrl: string): string {
     return `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
   }
   return "";
-}
-
-function getImageKitPoster(videoUrl: string): string {
-  if (!videoUrl.startsWith(IMAGEKIT_ENDPOINT)) return "";
-  return withImageKitTransform(videoUrl.replace(/\.[^.]+$/, ".jpg"), "so-2,w-240");
 }
 
 export function ClipsTable() {
@@ -73,9 +69,7 @@ export function ClipsTable() {
   const rows = filteredData.map((row) => {
     const isNativeVideo = !!row.videoUrl;
     const provider = row.videoUrl ? (row.videoUrl.startsWith(IMAGEKIT_ENDPOINT) ? "ImageKit" : "Archivo") : "YouTube";
-    const thumbUrl = row.videoUrl
-      ? getImageKitPoster(row.videoUrl)
-      : getYoutubeThumbnail(row.embed || "");
+    const thumbUrl = getClipThumbnail(row) || getYoutubeThumbnail(row.embed || "") || "/assets/hero.png";
     const videoLink = row.videoUrl || row.embed || "#";
 
     return (
@@ -83,23 +77,15 @@ export function ClipsTable() {
         {/* Thumbnail Preview */}
         <td className={classes.td}>
           <a href={videoLink} target="_blank" rel="noopener noreferrer">
-            {thumbUrl ? (
-              <div className={classes.thumbnailWrapper}>
-                <img
-                  src={thumbUrl}
-                  alt={row.title}
-                  className={classes.thumbnailImg}
-                  loading="lazy"
-                />
-                <div className={classes.thumbnailPlayBadge}>
-                  <IconPlayerPlay size={16} fill="currentColor" />
-                </div>
+            <div className={classes.thumbnailWrapper}>
+              <img src={thumbUrl} alt={row.title} className={classes.thumbnailImg} loading="lazy"
+                onError={({ currentTarget }) => {
+                  if (currentTarget.getAttribute("src") !== "/assets/hero.png") currentTarget.src = "/assets/hero.png";
+                }} />
+              <div className={classes.thumbnailPlayBadge}>
+                <IconPlayerPlay size={16} fill="currentColor" />
               </div>
-            ) : (
-              <div className={classes.noThumbnail}>
-                <IconPlayerPlay size={20} />
-              </div>
-            )}
+            </div>
           </a>
         </td>
 

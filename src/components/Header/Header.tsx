@@ -1,71 +1,39 @@
-import { Burger } from "@mantine/core";
-import { NavLink } from "react-router-dom";
-import { IconBrandTiktok } from "@tabler/icons-react";
-import { motion } from "framer-motion";
+import { useState, type FormEvent } from "react";
+import { Box } from "@mantine/core";
+import { Link, useNavigate } from "react-router-dom";
+import { IconBrandTiktok, IconSearch } from "@tabler/icons-react";
 import classes from "./Header.module.css";
 
-type HeaderProps = {
-  opened: boolean;
-  toggle: () => void;
-};
+export const Header = ({ opened, toggle }: { opened: boolean; toggle: () => void }) => {
+  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
 
-const navItems = [
-  { to: "/", label: "Inicio", end: true },
-  { to: "/clips", label: "Clips" },
-  { to: "/colecciones", label: "Colecciones" },
-  { to: "/screenshots", label: "Screenshots" },
-  { to: "/dashboard", label: "Dashboard" },
-];
+  const search = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const value = query.trim();
+    navigate(value ? `/clips?${new URLSearchParams({ q: value })}` : "/clips");
+  };
 
-export const Header = ({ opened, toggle }: HeaderProps) => {
   return (
     <header className={classes.header}>
       <div className={classes.inner}>
-        {/* Logo */}
-        <NavLink to="/" className={classes.logo}>
-          <span className={classes.logoDot} />
-          <span className={classes.logoText}>Perro Flautas</span>
-        </NavLink>
-
-        {/* Desktop Nav */}
-        <nav className={classes.navLinks} aria-label="Navegación principal" style={{ display: "var(--nav-display, flex)" }}>
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                isActive
-                  ? `${classes.navLink} ${classes.navLinkActive}`
-                  : classes.navLink
-              }
-            >
-              {item.label}
-            </NavLink>
-          ))}
-
-          <motion.a
-            href="https://www.tiktok.com/@all4nb?_t=8kIM1a3KEEQ&_r=1"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={classes.socialIcon}
-            aria-label="TikTok de Allan"
-            whileHover={{ scale: 1.12 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <IconBrandTiktok size={18} stroke={1.5} />
-          </motion.a>
-        </nav>
-
-        {/* Mobile Burger */}
-        <Burger
-          opened={opened}
-          onClick={toggle}
-          hiddenFrom="sm"
-          size="sm"
-          className={classes.burger}
-          aria-label="Abrir menú"
-        />
+        <div className={classes.brand}>
+          <Box component="button" type="button" className={classes.menuToggle} hiddenFrom="md"
+            onClick={toggle} aria-label={opened ? "Cerrar menú" : "Abrir menú"}
+            aria-controls="library-sidebar" aria-expanded={opened}>
+            <span aria-hidden="true"><i /><i /></span>
+          </Box>
+          <Link to="/" className={classes.logo} aria-label="Perro Flautas">
+            <img src="/dog.svg" alt="" width={28} height={28} />
+            <span>Perro Flautas</span>
+          </Link>
+        </div>
+        <form className={classes.search} role="search" aria-label="Buscar en la biblioteca" onSubmit={search}>
+          <input type="search" aria-label="Buscar en la biblioteca" placeholder="Buscar clips" value={query} onChange={(event) => setQuery(event.target.value)} />
+          <button type="submit" aria-label="Buscar"><IconSearch size={19} /></button>
+        </form>
+        <a href="https://www.tiktok.com/@all4nb?_t=8kIM1a3KEEQ&_r=1" target="_blank" rel="noopener noreferrer"
+          className={classes.social} aria-label="TikTok de Allan"><IconBrandTiktok size={19} /></a>
       </div>
     </header>
   );

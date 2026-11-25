@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
-import { Button, Group, Modal, TagsInput, TextInput } from "@mantine/core";
-import { IconUpload, IconCheck, IconAlertCircle } from "@tabler/icons-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { Button, FileButton, Group, Image, Loader, Modal, Stack, TagsInput, Text, TextInput } from "@mantine/core";
+import { IconUpload, IconCheck, IconAlertCircle, IconPhotoPlus } from "@tabler/icons-react";
+import { motion, AnimatePresence } from "motion/react";
 import { notifications } from "@mantine/notifications";
 import { AddClipValues } from "../../../../constants/documents";
 import { useAddClips } from "../../../../hooks/Clips/useAddClips";
@@ -9,7 +9,7 @@ import { uploadMedia } from "../../../../services/uploadMedia";
 import classes from "./ClipsModalAdd.module.css";
 import { useForm } from "@mantine/form";
 
-const MAX_SIZE_MB = 240;
+const MAX_SIZE_MIB = 240;
 const ACCEPTED_EXTENSIONS = ".mp4,.mov,.webm";
 
 export type Props = {
@@ -23,12 +23,44 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
 
   // Estado del upload
   const [uploadState, setUploadState] = useState<
-    "idle" | "uploading" | "done" | "error"
+    "idle" | "uploading" | "processing" | "done" | "error"
   >("idle");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedUrl, setUploadedUrl] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState("");
+  const [thumbnail, setThumbnail] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState("");
+  const [saving, setSaving] = useState(false);
+  const thumbnailInput = useRef<() => void>(null);
+  const uploadedThumbnail = useRef<{ file: File; url: string }>();
+  const busy = loading || saving;
+  const uploadInProgress = uploadState === "uploading" || uploadState === "processing";
+
+  useEffect(() => {
+    if (!thumbnail) return;
+    const url = URL.createObjectURL(thumbnail);
+    setThumbnailPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [thumbnail]);
+
+  const clearThumbnail = useCallback(() => {
+    setThumbnail(null);
+    setThumbnailPreview("");
+    uploadedThumbnail.current = undefined;
+    thumbnailInput.current?.();
+  }, []);
+
+  const selectThumbnail = (file: File | null) => {
+    if (!file || busy) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || !file.size || file.size > 10 * 1024 * 1024) {
+      notifications.show({ color: "red", message: "Elige una miniatura JPG, PNG o WebP de hasta 10 MiB." });
+      thumbnailInput.current?.();
+      return;
+    }
+    setThumbnail(file);
+    setThumbnailPreview("");
+  };
 
   const form = useForm({
     mode: "uncontrolled",
@@ -44,29 +76,30 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
     setUploadProgress(0);
     setUploadedUrl("");
     setSelectedFileName("");
-  }, [form]);
+    clearThumbnail();
+  }, [form, clearThumbnail]);
 
   const handleClose = useCallback(() => {
-    handleReset();
+    if (uploadState !== "processing") handleReset();
     close();
-  }, [close, handleReset]);
+  }, [close, handleReset, uploadState]);
 
   const handleFileSelect = async (file: File | null) => {
-    if (!file || uploadState === "uploading" || uploadState === "done") return;
+    if (!file || uploadInProgress || uploadState === "done") return;
     if (!/^video\/(mp4|quicktime|webm)$/.test(file.type)) {
       notifications.show({ title: "Formato inválido", message: "Solo se aceptan MP4, MOV y WEBM.", color: "red" });
       return;
     }
-    const sizeMB = file.size / 1024 / 1024;
-    if (sizeMB > MAX_SIZE_MB) {
-      notifications.show({ title: "Archivo muy grande", message: `El video no puede superar ${MAX_SIZE_MB}MB. Este pesa ${sizeMB.toFixed(0)}MB.`, color: "red" });
+    const sizeMiB = file.size / 1024 / 1024;
+    if (sizeMiB > MAX_SIZE_MIB) {
+      notifications.show({ title: "Archivo muy grande", message: `El máximo es ${MAX_SIZE_MIB} MiB por video.`, color: "red" });
       return;
     }
     setSelectedFileName(file.name);
     setUploadState("uploading");
     setUploadProgress(0);
     try {
-      setUploadedUrl(await uploadMedia(file, "clip", setUploadProgress));
+      setUploadedUrl(await uploadMedia(file, "clip", setUploadProgress, () => setUploadState("processing")));
       setUploadState("done");
     } catch (error) {
       setUploadState("error");
@@ -80,22 +113,34 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
 
   const handleSubmit = useCallback(
     async (values: { title: string; tag: string[] }) => {
-      if (!uploadedUrl) return;
+      if (!uploadedUrl || busy) return;
+      setSaving(true);
       try {
+        let thumbnailUrl: string | undefined;
+        if (thumbnail) {
+          if (uploadedThumbnail.current?.file === thumbnail) thumbnailUrl = uploadedThumbnail.current.url;
+          else {
+            thumbnailUrl = await uploadMedia(thumbnail, "clip-thumbnail", () => {});
+            uploadedThumbnail.current = { file: thumbnail, url: thumbnailUrl };
+          }
+        }
         const clipData: AddClipValues = {
           title: values.title,
           tag: values.tag,
           videoUrl: uploadedUrl,
+          thumbnailUrl,
         };
         await addData(clipData);
         refetch();
         notifications.show({ title: "¡Clip agregado!", message: "El video se ha subido y guardado correctamente." });
         handleClose();
-      } catch {
-        notifications.show({ title: "Error", message: "No pudimos guardar el clip.", color: "red" });
+      } catch (error) {
+        notifications.show({ title: "Error", message: error instanceof Error ? error.message : "No pudimos guardar el clip.", color: "red" });
+      } finally {
+        setSaving(false);
       }
     },
-    [uploadedUrl, addData, refetch, handleClose]
+    [uploadedUrl, thumbnail, busy, addData, refetch, handleClose]
   );
 
   const canSave = uploadState === "done" && uploadedUrl !== "";
@@ -104,9 +149,9 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
     <Modal
       opened={opened}
       onClose={handleClose}
-      withCloseButton={uploadState !== "uploading" && !loading}
-      closeOnEscape={uploadState !== "uploading" && !loading}
-      closeOnClickOutside={uploadState !== "uploading" && !loading}
+      withCloseButton={uploadState !== "uploading" && !busy}
+      closeOnEscape={uploadState !== "uploading" && !busy}
+      closeOnClickOutside={!uploadInProgress && !busy}
       title="Agregar clip"
       centered
       radius={15}
@@ -166,7 +211,7 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
                 <IconUpload size={28} stroke={1.5} color="var(--text-muted)" />
                 <p className={classes.dropTitle}>Arrastra tu video aquí</p>
                 <p className={classes.dropSub}>o haz clic para seleccionar</p>
-                <p className={classes.dropHint}>MP4, MOV, WEBM · máx. {MAX_SIZE_MB}MB</p>
+                <p className={classes.dropHint}>MP4, MOV, WebM</p>
               </motion.div>
             )}
 
@@ -192,6 +237,21 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
                 <p className={classes.dropHint} style={{ marginTop: 8 }}>
                   {uploadProgress}% completado
                 </p>
+                <p className={classes.dropSub}>{selectedFileName}</p>
+              </motion.div>
+            )}
+
+            {uploadState === "processing" && (
+              <motion.div
+                key="processing"
+                className={classes.dropContent}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                role="status"
+              >
+                <Loader size="sm" />
+                <p className={classes.dropTitle}>Comprimiendo video…</p>
                 <p className={classes.dropSub}>{selectedFileName}</p>
               </motion.div>
             )}
@@ -231,14 +291,30 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
             )}
           </AnimatePresence>
         </div>
+        <Text size="sm" c="dimmed" mt="xs">Máximo de {MAX_SIZE_MIB} MiB por video original.</Text>
+
+        <Stack gap="xs" mt="md">
+          <Text size="sm" fw={600}>Miniatura opcional</Text>
+          <Image src={thumbnail && thumbnailPreview ? thumbnailPreview : "/assets/hero.png"}
+            fallbackSrc="/assets/hero.png" alt="Vista previa de la miniatura" radius="sm"
+            style={{ aspectRatio: "16 / 9", maxWidth: 260, objectFit: "cover" }} />
+          <Group gap="xs">
+            <FileButton resetRef={thumbnailInput} onChange={selectThumbnail} accept="image/jpeg,image/png,image/webp">
+              {(props) => <Button {...props} type="button" variant="light" size="xs" disabled={busy} leftSection={<IconPhotoPlus size={16} />}>
+                {thumbnail ? "Cambiar miniatura" : "Elegir miniatura"}
+              </Button>}
+            </FileButton>
+            {thumbnail && <Button type="button" size="xs" variant="subtle" disabled={busy} onClick={clearThumbnail}>Usar predeterminada</Button>}
+          </Group>
+        </Stack>
 
         <Group justify="flex-end" mt="md">
-          <Button onClick={handleClose} disabled={uploadState === "uploading" || loading} variant="default" color="gray">
-            Cancelar
+          <Button onClick={handleClose} disabled={uploadState === "uploading" || busy} variant="default" color="gray">
+            {uploadState === "processing" ? "Cerrar" : "Cancelar"}
           </Button>
           <Button
             type="submit"
-            loading={loading}
+            loading={busy}
             disabled={!canSave}
             title={!canSave ? "Primero sube un video" : ""}
           >

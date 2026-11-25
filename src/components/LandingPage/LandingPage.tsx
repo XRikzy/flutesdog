@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { Anchor, Container, Image, Skeleton, Stack, Title } from "@mantine/core";
+import { Anchor, Container, Image, SimpleGrid, Skeleton, Stack, Title } from "@mantine/core";
 import { Link } from "react-router-dom";
-import { IconPlus } from "@tabler/icons-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { IconArrowRight, IconPlayerPlayFilled, IconPlus } from "@tabler/icons-react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Hero } from "./Hero/Hero";
 import { useGetClips } from "../../hooks/Clips/useGetClips";
 import { ClipShareActions } from "../ClipShareActions";
-import { VideoPlayer } from "../VideoPlayer/VideoPlayer";
+import { ClipPlayback } from "../../pages/Clips/ClipPlayback";
+import { getClipThumbnail } from "../../utils/clipThumbnail";
 import { useCollections } from "../../hooks/useCollections";
 import { CollectionCard } from "../../pages/Collections/CollectionsPage";
 import { getScreenshotImages } from "../../pages/Screenshots/service/screenshot.service";
@@ -45,8 +46,16 @@ const stagger = {
   },
 } as const;
 
+const sectionReveal = {
+  initial: { opacity: 0.65, y: 16 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, amount: 0.15 },
+  transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] },
+} as const;
+
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
   return (
     <div className={classes.faqItem}>
       <button
@@ -67,7 +76,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: reduceMotion ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }}
             style={{ overflow: "hidden" }}
           >
             <p className={classes.faqAnswer}>{a}</p>
@@ -79,10 +88,13 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 }
 
 export const LandingPage = () => {
+  const reduceMotion = useReducedMotion();
   const { data: clips, loading } = useGetClips();
   const { data: collections } = useCollections();
   const featured = collections?.items.find((item) => item.id === collections.featuredId);
-  const [latestImage, setLatestImage] = useState<Images>();
+  const [recentImages, setRecentImages] = useState<Images[]>([]);
+  const latestImage = recentImages[0];
+  const [playingRecentId, setPlayingRecentId] = useState<string>();
 
   useEffect(() => {
     let active = true;
@@ -91,130 +103,134 @@ export const LandingPage = () => {
       const recent = images.filter((image) => image.url).sort(
         (a, b) => (Date.parse(String(b.createdAt)) || 0) - (Date.parse(String(a.createdAt)) || 0),
       );
-      setLatestImage(recent[0]);
+      setRecentImages(recent);
     }).catch(() => { /* The screenshot service can be unavailable independently. */ });
     return () => { active = false; };
   }, []);
 
-  const latestClip = [...clips]
+  const recentClips = [...clips]
     .sort((a, b) => {
       const da = a.createdAt ? new Date(a.createdAt).getTime() : 0;
       const db = b.createdAt ? new Date(b.createdAt).getTime() : 0;
       return da !== db ? db - da : b.id.localeCompare(a.id);
-    })[0];
+    });
+  const [latestClip, ...moreClips] = recentClips;
 
   return (
-    <Container size="lg" py="xl">
-      {/* HERO */}
-      <Hero />
-
-      {/* DIVIDER */}
-      <div className={classes.divider} />
-
-      {featured && (
-        <Stack component="section" mb="xl" aria-label="Colección destacada">
-          <Title order={2}>Colección destacada</Title>
-          <CollectionCard item={featured} />
-          <Anchor component={Link} to="/colecciones">Ver todas las colecciones</Anchor>
-        </Stack>
-      )}
-
-      {/* ÚLTIMO CLIP SUBIDO */}
-      <motion.section
-        className={classes.latestSection}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-80px" }}
-        variants={fadeUp}
-        aria-label="Último clip subido"
-      >
-        <span className={classes.sectionEyebrow}>Novedad</span>
-        <Title order={2} className={classes.sectionTitle}>
-          Último clip subido
-        </Title>
-
-        {loading ? (
-          <div className={classes.skeletonWrapper}>
-            <Skeleton height={460} radius="md" />
-          </div>
-        ) : latestClip ? (
-          <div className={classes.latestClipWrapper}>
-            {latestClip.videoUrl ? (
-              /* Archivo de video — con descarga */
-              <VideoPlayer
-                src={latestClip.videoUrl}
-                title={latestClip.title}
-                showDownload
-              />
-            ) : (
-              /* Clip legacy de YouTube — iframe embed */
-              <div className={classes.iframeWrapper}>
-                <iframe
-                  src={latestClip.embed}
-                  title={latestClip.title}
-                  className={classes.videoIframe}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            )}
-            <div className={classes.clipInfo}>
-              <p className={classes.clipTitle}>{latestClip.title}</p>
-              <div className={classes.tagsRow}>
-                {latestClip.tag.map((t, i) => (
-                  <span key={i} className={classes.tag}>
-                    {t}
-                  </span>
-                ))}
-              </div>
-              <ClipShareActions id={latestClip.id} />
+    <div className={classes.pageBackground}>
+      <Container size={1194} className={classes.home}>
+        <div className={classes.stage}>
+          <Hero />
+          <section className={classes.mediaWindow} aria-labelledby="latest-clip">
+            <div className={classes.windowBar}>
+              <Title order={2} id="latest-clip">Último clip subido</Title>
+              <Anchor component={Link} to="/clips">Ver clips <IconArrowRight size={16} /></Anchor>
             </div>
-          </div>
-        ) : (
-          <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
-            No hay clips aún.
-          </p>
+            {loading ? <Skeleton className={classes.mediaSkeleton} radius="md" /> : latestClip ? (
+              <div className={classes.latestClipWrapper}>
+                <ClipPlayback title={latestClip.title} videoUrl={latestClip.videoUrl} embed={latestClip.embed} />
+                <div className={classes.clipInfo}>
+                  <h3 className={classes.clipTitle}>{latestClip.title}</h3>
+                  <div className={classes.tagsRow}>
+                    {latestClip.tag.map((tag, index) => <span key={index} className={classes.tag}>{tag}</span>)}
+                  </div>
+                  <ClipShareActions id={latestClip.id} />
+                </div>
+              </div>
+            ) : <p className={classes.empty}>No hay clips aún.</p>}
+          </section>
+        </div>
+
+        {moreClips.length > 0 && (
+          <motion.section className={classes.chapter} aria-labelledby="recent-clips" {...(reduceMotion ? {} : sectionReveal)}>
+            <div className={classes.sectionHeader}>
+              <Title order={2} id="recent-clips" className={classes.sectionTitle}>Clips <span>recientes</span></Title>
+              <Anchor component={Link} to="/clips">Ver biblioteca <IconArrowRight size={16} /></Anchor>
+            </div>
+            <SimpleGrid cols={{ base: 1, xs: 2, lg: 3 }} spacing="lg">
+              {moreClips.slice(0, 3).map((clip) => {
+                const title = clip.title || "Clip";
+                const poster = getClipThumbnail(clip);
+                return (
+                  <article key={clip.id} className={classes.clipTile}>
+                    {playingRecentId === clip.id || (!clip.videoUrl && !clip.embed) ? (
+                      <ClipPlayback title={title} videoUrl={clip.videoUrl} embed={clip.embed} autoPlay showDownload={false} />
+                    ) : (
+                      <button type="button" className={classes.clipPreview} aria-label={`Reproducir ${title}`}
+                        onClick={() => setPlayingRecentId(clip.id)}>
+                        {poster && (
+                          <img key={poster} src={poster} alt="" loading="lazy"
+                            onError={(event) => { event.currentTarget.hidden = true; }} />
+                        )}
+                        <span className={classes.playControl}>
+                          <IconPlayerPlayFilled aria-hidden="true" size={22} />
+                        </span>
+                        <span className={classes.playText}>Reproducir</span>
+                      </button>
+                    )}
+                    <h3><Link to={`/clips/${encodeURIComponent(clip.id)}`}>{title}</Link></h3>
+                    {clip.tag.length > 0 && <p>{clip.tag.slice(0, 3).join(" · ")}</p>}
+                  </article>
+                );
+              })}
+            </SimpleGrid>
+          </motion.section>
         )}
-      </motion.section>
 
-      {latestImage?.url && (
-        <Stack component="section" mt="xl" aria-label="Última captura">
-          <Title order={2}>Última captura</Title>
-          <a href={latestImage.url} target="_blank" rel="noreferrer">
-            <Image src={latestImage.thumbnail || latestImage.url} alt={latestImage.name} loading="lazy" radius="md" mah={420} fit="contain" />
-          </a>
-          <Anchor component={Link} to="/screenshots">Ver galería</Anchor>
-        </Stack>
-      )}
+        {(featured || latestImage?.url) && (
+          <SimpleGrid cols={{ base: 1, lg: featured && latestImage?.url ? 2 : 1 }} spacing="lg" className={classes.chapter}>
+            {featured && (
+              <Stack component="section" className={classes.featurePanel} aria-label="Colección destacada">
+                <Title order={2} className={classes.sectionTitle}>Colección <span>destacada</span></Title>
+                <CollectionCard item={featured} images={recentImages} />
+                <Anchor component={Link} to="/colecciones">Ver todas las colecciones</Anchor>
+              </Stack>
+            )}
+            {latestImage?.url && (
+              <Stack component="section" className={classes.capturePanel} aria-label="Última captura">
+                <Title order={2} className={classes.sectionTitle}>Última <span>captura</span></Title>
+                <a href={latestImage.url} target="_blank" rel="noreferrer">
+                  <Image src={latestImage.thumbnail || latestImage.url} alt={latestImage.name} loading="lazy" radius="md" mah={360} fit="contain" />
+                </a>
+                <Anchor component={Link} to="/screenshots">Ver galería</Anchor>
+              </Stack>
+            )}
+          </SimpleGrid>
+        )}
 
-      {/* DIVIDER */}
-      <div className={classes.divider} />
-
-      {/* FAQ */}
-      <motion.section
-        className={classes.faqSection}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-60px" }}
-        variants={stagger}
-        aria-label="Preguntas frecuentes"
-      >
-        <motion.span className={classes.sectionEyebrow} variants={fadeUp}>
-          Preguntas frecuentes
-        </motion.span>
-        <motion.div variants={fadeUp}>
-          <Title order={2} className={classes.sectionTitle} mb="xl">
-            ¿Tienes dudas?
-          </Title>
-        </motion.div>
-        <motion.div variants={stagger} style={{ maxWidth: 660, margin: "0 auto" }}>
-          {faqs.map((faq) => (
-            <motion.div key={faq.q} variants={fadeUp}>
-              <FaqItem q={faq.q} a={faq.a} />
-            </motion.div>
-          ))}
-        </motion.div>
-      </motion.section>
-    </Container>
+        {/* FAQ */}
+        <motion.section
+          className={classes.faqSection}
+          initial={reduceMotion ? false : "hidden"}
+          whileInView={reduceMotion ? undefined : "visible"}
+          viewport={{ once: true, margin: "-60px" }}
+          variants={stagger}
+          aria-label="Preguntas frecuentes"
+        >
+          <motion.div variants={fadeUp}>
+            <Title order={2} className={classes.sectionTitle} mb="xl">
+              Preguntas <span>frecuentes</span>
+            </Title>
+          </motion.div>
+          <motion.div variants={stagger} style={{ maxWidth: 660, margin: "0 auto" }}>
+            {faqs.map((faq) => (
+              <motion.div key={faq.q} variants={fadeUp}>
+                <FaqItem q={faq.q} a={faq.a} />
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.section>
+        <div className={classes.closing}>
+          <footer className={classes.footer}>
+            <Link to="/" className={classes.footerBrand}>Perro Flautas</Link>
+            <nav aria-label="Biblioteca">
+              <Link to="/clips">Clips</Link>
+              <Link to="/screenshots">Capturas</Link>
+              <Link to="/colecciones">Colecciones</Link>
+            </nav>
+          </footer>
+        </div>
+      </Container>
+    </div>
   );
 };

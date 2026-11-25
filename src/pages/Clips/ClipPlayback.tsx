@@ -2,8 +2,8 @@ import { VideoPlayer } from "../../components/VideoPlayer/VideoPlayer";
 import type { Ivideos } from "../../constants/documents";
 import classes from "./Clips.module.css";
 
-export function ClipPlayback({ title, videoUrl, embed, autoPlay = false }: Pick<Ivideos, "title" | "videoUrl" | "embed"> & { autoPlay?: boolean }) {
-  if (videoUrl) return <VideoPlayer key={videoUrl} src={videoUrl} title={title} showDownload autoPlay={autoPlay} />;
+export function ClipPlayback({ title, videoUrl, embed, autoPlay = false, showDownload = true }: Pick<Ivideos, "title" | "videoUrl" | "embed"> & { autoPlay?: boolean; showDownload?: boolean }) {
+  if (videoUrl) return <VideoPlayer key={videoUrl} src={videoUrl} title={title} showDownload={showDownload} autoPlay={autoPlay} />;
   if (!embed) return <p className={classes.cardBody}>El video de este clip no está disponible.</p>;
   const src = autoPlay && /^https:\/\/(?:www\.)?youtube(?:-nocookie)?\.com\/embed\//.test(embed)
     ? `${embed.split("#")[0]}${embed.includes("?") ? "&" : "?"}autoplay=1`
