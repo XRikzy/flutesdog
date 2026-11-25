@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { Button, FileButton, Group, Image, Loader, Modal, Stack, TagsInput, Text, TextInput } from "@mantine/core";
+import { Button, FileButton, Group, Image, Modal, Stack, TagsInput, Text, TextInput } from "@mantine/core";
 import { IconUpload, IconCheck, IconAlertCircle, IconPhotoPlus } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "motion/react";
 import { notifications } from "@mantine/notifications";
@@ -23,7 +23,7 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
 
   // Estado del upload
   const [uploadState, setUploadState] = useState<
-    "idle" | "uploading" | "processing" | "done" | "error"
+    "idle" | "uploading" | "done" | "error"
   >("idle");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedUrl, setUploadedUrl] = useState("");
@@ -35,7 +35,7 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
   const thumbnailInput = useRef<() => void>(null);
   const uploadedThumbnail = useRef<{ file: File; url: string }>();
   const busy = loading || saving;
-  const uploadInProgress = uploadState === "uploading" || uploadState === "processing";
+  const uploadInProgress = uploadState === "uploading";
 
   useEffect(() => {
     if (!thumbnail) return;
@@ -80,9 +80,9 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
   }, [form, clearThumbnail]);
 
   const handleClose = useCallback(() => {
-    if (uploadState !== "processing") handleReset();
+    handleReset();
     close();
-  }, [close, handleReset, uploadState]);
+  }, [close, handleReset]);
 
   const handleFileSelect = async (file: File | null) => {
     if (!file || uploadInProgress || uploadState === "done") return;
@@ -99,7 +99,7 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
     setUploadState("uploading");
     setUploadProgress(0);
     try {
-      setUploadedUrl(await uploadMedia(file, "clip", setUploadProgress, () => setUploadState("processing")));
+      setUploadedUrl(await uploadMedia(file, "clip", setUploadProgress));
       setUploadState("done");
     } catch (error) {
       setUploadState("error");
@@ -149,8 +149,8 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
     <Modal
       opened={opened}
       onClose={handleClose}
-      withCloseButton={uploadState !== "uploading" && !busy}
-      closeOnEscape={uploadState !== "uploading" && !busy}
+      withCloseButton={!uploadInProgress && !busy}
+      closeOnEscape={!uploadInProgress && !busy}
       closeOnClickOutside={!uploadInProgress && !busy}
       title="Agregar clip"
       centered
@@ -241,21 +241,6 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
               </motion.div>
             )}
 
-            {uploadState === "processing" && (
-              <motion.div
-                key="processing"
-                className={classes.dropContent}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                role="status"
-              >
-                <Loader size="sm" />
-                <p className={classes.dropTitle}>Comprimiendo video…</p>
-                <p className={classes.dropSub}>{selectedFileName}</p>
-              </motion.div>
-            )}
-
             {uploadState === "done" && (
               <motion.div
                 key="done"
@@ -291,7 +276,7 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
             )}
           </AnimatePresence>
         </div>
-        <Text size="sm" c="dimmed" mt="xs">Máximo de {MAX_SIZE_MIB} MiB por video original.</Text>
+        <Text size="sm" c="dimmed" mt="xs">Máximo de {MAX_SIZE_MIB} MiB por video.</Text>
 
         <Stack gap="xs" mt="md">
           <Text size="sm" fw={600}>Miniatura opcional</Text>
@@ -309,8 +294,8 @@ export const ClipsModalAdd = ({ opened, close, refetch }: Props) => {
         </Stack>
 
         <Group justify="flex-end" mt="md">
-          <Button onClick={handleClose} disabled={uploadState === "uploading" || busy} variant="default" color="gray">
-            {uploadState === "processing" ? "Cerrar" : "Cancelar"}
+          <Button onClick={handleClose} disabled={uploadInProgress || busy} variant="default" color="gray">
+            Cancelar
           </Button>
           <Button
             type="submit"

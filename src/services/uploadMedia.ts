@@ -48,32 +48,14 @@ async function compressScreenshot(file: File): Promise<File> {
   }
 }
 
-async function waitForClip(uploadId: string) {
-  const deadline = Date.now() + 15 * 60_000;
-  while (Date.now() < deadline) {
-    const headers = await mediaAuthHeaders();
-    const result = await AxiosScreenshot.get<{ status: "processing" | "failed" } | { status: "ready"; url: string }>(
-      `/uploads/clips/${encodeURIComponent(uploadId)}`, { headers, timeout: 10_000 },
-    ).catch((error: unknown) => {
-      if (!axios.isAxiosError(error) || (error.response && error.response.status < 500)) throw error;
-      return null;
-    });
-    if (result?.data.status === "ready") return result.data.url;
-    if (result?.data.status === "failed") throw new Error("No se pudo comprimir el video. Revisa que se reproduzca e inténtalo de nuevo.");
-    await new Promise<void>((resolve) => window.setTimeout(resolve, 5000));
-  }
-  throw new Error("El video sigue pendiente de procesamiento. Contacta al administrador antes de volver a subirlo.");
-}
-
 export async function uploadMedia(
   file: File,
   kind: "clip" | "screenshot" | "collection-cover" | "clip-thumbnail",
   onProgress: (percent: number) => void,
-  onProcessing?: () => void,
 ) {
   const headers = await mediaAuthHeaders();
   const uploadFile = kind !== "clip" ? await compressScreenshot(file) : file;
-  const { data } = await AxiosScreenshot.post<{ uploadUrl: string; url?: string; uploadId?: string }>("/uploads", {
+  const { data } = await AxiosScreenshot.post<{ uploadUrl: string; url: string }>("/uploads", {
     kind,
     name: uploadFile.name,
     contentType: uploadFile.type,
@@ -83,7 +65,7 @@ export async function uploadMedia(
     const message = error.response?.data?.error;
     throw new Error(typeof message === "string" ? message : "No pudimos preparar la subida en la API de Flutesdog.");
   });
-  if (kind === "clip" && !data.uploadId) throw new Error("La API de procesamiento de clips aún no está disponible.");
+  if (!data.url) throw new Error("La API no devolvió una URL pública para el archivo.");
 
   try {
     await axios.put(data.uploadUrl, uploadFile, {
@@ -96,10 +78,5 @@ export async function uploadMedia(
     }
     throw error;
   }
-  if (kind === "clip" && data.uploadId) {
-    onProcessing?.();
-    return waitForClip(data.uploadId);
-  }
-  if (!data.url) throw new Error("La API no devolvió una URL para la imagen.");
   return data.url;
 }
