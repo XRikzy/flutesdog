@@ -1,13 +1,16 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { SimpleGrid, Skeleton } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight, IconPhoto, IconX } from "@tabler/icons-react";
 import { motion, AnimatePresence } from "motion/react";
 import type { Images } from "./decorators/UImages";
+import { LibraryEmpty } from "../../components/LibraryPage";
+import library from "../../components/LibraryPage.module.css";
 import classes from "./Screenshots.module.css";
 
 export function ScreenshotGallery({
-  images, loading, emptyMessage = "No se encontraron screenshots que coincidan con los filtros aplicados.",
-}: { images: Images[]; loading: boolean; emptyMessage?: string }) {
+  images, loading, emptyTitle = "Aún no hay capturas",
+  emptyMessage = "Ninguna captura coincide con la búsqueda o los filtros.",
+}: { images: Images[]; loading: boolean; emptyTitle?: string; emptyMessage?: string }) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const openLightbox = (i: number) => setLightboxIndex(i);
   const closeLightbox = () => setLightboxIndex(null);
@@ -16,15 +19,12 @@ export function ScreenshotGallery({
   const nextImage = () =>
     setLightboxIndex((i) => (i !== null ? (i + 1) % images.length : null));
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (lightboxIndex === null) return;
-      if (e.key === "ArrowLeft") prevImage();
-      if (e.key === "ArrowRight") nextImage();
-      if (e.key === "Escape") closeLightbox();
-    },
-    [lightboxIndex, images.length]
-  );
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (lightboxIndex === null) return;
+    if (e.key === "ArrowLeft") prevImage();
+    if (e.key === "ArrowRight") nextImage();
+    if (e.key === "Escape") closeLightbox();
+  };
 
   return (
     <div onKeyDown={handleKeyDown}>
@@ -35,17 +35,7 @@ export function ScreenshotGallery({
           ))}
         </SimpleGrid>
       ) : images.length === 0 ? (
-        <motion.div
-          className={classes.emptyState}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <IconPhoto size={52} stroke={1} color="var(--text-muted)" />
-          <p className={classes.emptyTitle}>Ninguna coincidencia</p>
-          <p className={classes.emptySubtitle}>
-            {emptyMessage}
-          </p>
-        </motion.div>
+        <LibraryEmpty icon={<IconPhoto size={24} stroke={1.6} />} title={emptyTitle} description={emptyMessage} />
       ) : (
         <motion.div
           initial={{ opacity: 0 }}
@@ -56,13 +46,11 @@ export function ScreenshotGallery({
             {images.map(({ fileId, url, name }, index) => (
               <motion.button
                 key={fileId}
-                className={classes.imageCard}
+                className={`${library.card} ${classes.imageCard}`}
                 onClick={() => openLightbox(index)}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05, duration: 0.4 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
                 aria-label={`Ver screenshot: ${name}`}
               >
                 <img
@@ -71,8 +59,8 @@ export function ScreenshotGallery({
                   className={classes.image}
                   loading="lazy"
                 />
-                <div className={classes.imageOverlay}>
-                  <span className={classes.imageName}>{name}</span>
+                <div className={library.cardBody}>
+                  <span className={library.cardTitle}>{name}</span>
                 </div>
               </motion.button>
             ))}

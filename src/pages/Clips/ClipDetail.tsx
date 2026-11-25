@@ -7,6 +7,7 @@ import type { Ivideos } from "../../constants/documents";
 import { getClipById } from "../../services/getClips";
 import { ClipPlayback } from "./ClipPlayback";
 import classes from "./Clips.module.css";
+import library from "../../components/LibraryPage.module.css";
 
 export function ClipDetail() {
   const { clipId = "" } = useParams();
@@ -42,13 +43,13 @@ export function ClipDetail() {
         ) : clip === undefined ? (
           <Skeleton aria-label="Cargando clip" style={{ aspectRatio: "16 / 9" }} radius="md" />
         ) : clip === null ? (
-          <Title order={1} className={classes.pageTitle}>Clip no encontrado</Title>
+          <Title order={1} className={library.title}>Clip no encontrado</Title>
         ) : (
           <>
-            <Title order={1} className={classes.pageTitle}>{clip.title || "Clip"}</Title>
-            <div className={classes.card}>
+            <Title order={1} className={library.title}>{clip.title || "Clip"}</Title>
+            <div className={library.card}>
               <ClipPlayback {...clip} />
-              <div className={classes.cardBody}>
+              <div className={library.cardBody}>
                 {clip.tag.length > 0 && (
                   <div className={classes.tagsRow}>
                     {clip.tag.map((tag, index) => <span className={classes.tag} key={index}>{tag}</span>)}

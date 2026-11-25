@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { Alert, Anchor, Badge, Button, Container, Group, Modal, SimpleGrid, Skeleton, Stack, Text, Title } from "@mantine/core";
-import { IconPlus } from "@tabler/icons-react";
+import { Alert, Anchor, Badge, Modal, SimpleGrid, Skeleton, Stack, Text, Title } from "@mantine/core";
+import { IconFolder, IconPlus, IconVideoOff } from "@tabler/icons-react";
 import { Link, useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useCollections } from "../../hooks/useCollections";
 import { useGetClips } from "../../hooks/Clips/useGetClips";
+import { LibraryEmpty, LibraryPage } from "../../components/LibraryPage";
+import library from "../../components/LibraryPage.module.css";
 import { ClipsGrid } from "../Clips/ClipsGrid";
 import { ScreenshotGallery } from "../Screenshots/ScreenshotGallery";
 import { useAddScreenshot } from "../Screenshots/hook/useAddScreenshot";
@@ -16,12 +18,14 @@ import classes from "./Collections.module.css";
 
 export function CollectionCard({ item, featured, images }: { item: MediaCollection; featured?: boolean; images: Images[] }) {
   return (
-    <Link className={classes.card} to={`/colecciones/${encodeURIComponent(item.id)}`}>
-      <CollectionCover sources={collectionCoverSources(item, images)} />
-      {featured && <Badge className={classes.featured}>Destacada</Badge>}
-      <div className={classes.cardText}>
-        <h3>{item.title}</h3>
-        {item.description && <p>{item.description}</p>}
+    <Link className={`${library.card} ${classes.card}`} to={`/colecciones/${encodeURIComponent(item.id)}`}>
+      <div className={classes.cardCover}>
+        <CollectionCover sources={collectionCoverSources(item, images)} />
+        {featured && <Badge className={classes.featured}>Destacada</Badge>}
+      </div>
+      <div className={library.cardBody}>
+        <h3 className={library.cardTitle}>{item.title}</h3>
+        {item.description && <p className={classes.cardDescription}>{item.description}</p>}
         <small>{item.clipIds.length} clips · {item.screenshotIds.length} capturas</small>
       </div>
     </Link>
@@ -49,7 +53,8 @@ function CollectionMedia({ item, images, loadingImages }: { item: MediaCollectio
         <Title order={2} id="collection-clips" mb="md">Clips</Title>
         {error ? <Alert color="red">{error}</Alert> : loadingClips && item.clipIds.length ? <Skeleton height={180} /> :
           selectedClips.length ? <ClipsGrid clips={selectedClips} /> :
-            <Text c="dimmed">Esta colección todavía no tiene clips disponibles.</Text>}
+            <LibraryEmpty icon={<IconVideoOff size={24} stroke={1.6} />} title="Aún no hay clips"
+              description="Los clips de esta colección aparecerán aquí." />}
       </section>
     </Stack>
   );
@@ -65,29 +70,38 @@ export function CollectionsPage() {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const item = data?.items.find((entry) => entry.id === collectionId);
+  const total = data?.items.length ?? 0;
 
   return (
-    <Container size="xl" py="xl">
-      <Stack gap="lg">
-        {collectionId && <Anchor component={Link} to="/colecciones">Volver a colecciones</Anchor>}
-        <Group justify="space-between">
-          <Title order={1}>{item?.title || "Colecciones"}</Title>
-          {!collectionId && <Button leftSection={<IconPlus size={17} />} disabled={authLoading}
-            onClick={() => user ? setEditing(true) : openAccount()}>Crear colección</Button>}
-        </Group>
-        {loading ? <Skeleton height={240} /> : error ? (
-          <Alert color="red">No pudimos cargar las colecciones. <Anchor component="button" onClick={reload}>Reintentar</Anchor></Alert>
-        ) : collectionId ? item ? (
-          <>
-            {item.description && <Text>{item.description}</Text>}
-            <CollectionMedia key={item.id} item={item} images={images} loadingImages={loadingImages} />
-          </>
-        ) : <Text>Colección no encontrada.</Text> : data?.items.length ? (
-          <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }}>
-            {data.items.map((entry) => <CollectionCard key={entry.id} item={entry} featured={entry.id === data.featuredId} images={images} />)}
-          </SimpleGrid>
-        ) : <Text c="dimmed">Todavía no hay colecciones publicadas.</Text>}
-      </Stack>
+    <LibraryPage
+      title={item?.title || "Colecciones"}
+      summary={collectionId ? item?.description : loading ? "Cargando colecciones…" :
+        error ? undefined : `${total} ${total === 1 ? "colección publicada" : "colecciones publicadas"}`}
+      backLink={collectionId && <Anchor size="sm" component={Link} to="/colecciones">Volver a colecciones</Anchor>}
+      actions={!collectionId && (
+        <button type="button" className={library.primary} disabled={authLoading} aria-haspopup="dialog"
+          onClick={() => user ? setEditing(true) : openAccount()}>
+          <IconPlus size={17} aria-hidden="true" />
+          Crear colección
+        </button>
+      )}
+    >
+      {loading ? (
+        <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg" role="status" aria-label="Cargando colecciones">
+          {[0, 1, 2].map((index) => <Skeleton key={index} height={240} radius="md" />)}
+        </SimpleGrid>
+      ) : error ? (
+        <Alert color="red">No pudimos cargar las colecciones. <Anchor component="button" onClick={reload}>Reintentar</Anchor></Alert>
+      ) : collectionId ? item ? (
+        <CollectionMedia key={item.id} item={item} images={images} loadingImages={loadingImages} />
+      ) : <Text>Colección no encontrada.</Text> : data?.items.length ? (
+        <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
+          {data.items.map((entry) => <CollectionCard key={entry.id} item={entry} featured={entry.id === data.featuredId} images={images} />)}
+        </SimpleGrid>
+      ) : (
+        <LibraryEmpty icon={<IconFolder size={24} stroke={1.6} />} title="Aún no hay colecciones"
+          description="Las colecciones que se publiquen aparecerán aquí." />
+      )}
       <Modal opened={editing && Boolean(user) && !collectionId} onClose={() => { if (!saving) setEditing(false); }}
         title="Crear colección" size="xl" closeOnClickOutside={!saving} closeOnEscape={!saving} withCloseButton={!saving}>
         {editing && user && <CollectionEditor onBusyChange={setSaving} onSaved={(id) => {
@@ -96,6 +110,6 @@ export function CollectionsPage() {
           navigate(`/colecciones/${encodeURIComponent(id)}`);
         }} />}
       </Modal>
-    </Container>
+    </LibraryPage>
   );
 }

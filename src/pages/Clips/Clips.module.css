@@ -1,124 +1,3 @@
-/* Clips Page */
-.page {
-  min-height: 100vh;
-  background: var(--bg-base);
-}
-
-/* Top bar */
-.topBar {
-  border-bottom: 1px solid var(--border);
-  background: var(--bg-surface);
-  padding: 1.5rem 0;
-  position: sticky;
-  top: var(--app-shell-header-height, 78px);
-  z-index: 10;
-  backdrop-filter: blur(16px);
-}
-
-.topBarInner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.pageTitle {
-  font-family: var(--font-display);
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  margin: 0;
-  line-height: 1.1;
-}
-
-.pageSubtitle {
-  font-family: var(--font-body);
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin: 4px 0 0;
-}
-
-.controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-/* Search */
-.searchWrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.searchIcon {
-  position: absolute;
-  left: 12px;
-  color: var(--text-muted);
-  pointer-events: none;
-}
-
-.searchInput {
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  padding: 8px 12px 8px 34px;
-  outline: none;
-  width: 220px;
-  transition: border-color 0.2s ease, width 0.3s ease;
-}
-
-.searchInput::placeholder {
-  color: var(--text-muted);
-}
-
-.searchInput:focus {
-  border-color: var(--border-accent);
-  width: 280px;
-}
-
-/* Add button */
-.addButton {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #fff;
-  background: var(--accent);
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 8px 16px;
-  cursor: pointer;
-  box-shadow: var(--shadow-blue);
-  transition: box-shadow 0.2s ease;
-  white-space: nowrap;
-}
-
-.addButton:hover {
-  box-shadow: var(--shadow-blue-lg);
-}
-
-/* Clip Card */
-.card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  cursor: default;
-}
-
-.card:hover {
-  box-shadow: var(--shadow-blue);
-}
-
 .playPreview {
   position: relative;
   display: flex;
@@ -171,24 +50,8 @@
   border: none;
 }
 
-.cardBody {
-  padding: 1rem 1.1rem;
-  border-top: 1px solid var(--border);
-}
-
-.cardTitle {
-  font-family: var(--font-display);
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 0.6rem;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
 .tagsRow {
+  margin-block: 0.5rem;
   display: flex;
   gap: 5px;
   flex-wrap: wrap;
@@ -205,94 +68,6 @@
   border-radius: 4px;
   letter-spacing: 0.04em;
 }
-
-/* Empty state */
-.emptyState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 6rem 2rem;
-  gap: 1rem;
-  text-align: center;
-}
-
-.emptyTitle {
-  font-family: var(--font-display);
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.emptySubtitle {
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  color: var(--text-muted);
-  margin: 0;
-  max-width: 320px;
-}
-
-.filtersBar { border-bottom: 1px solid var(--border); padding: 14px 0 16px; }
-.filtersBarInner { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 18px; }
-.filterLabel {
-  display: block;
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  font-weight: 600;
-  margin-bottom: 6px;
-  line-height: 1.2;
-}
-.originSelector { min-width: 0; border: 0; }
-.segmentedControl {
-  display: flex;
-  min-height: 40px;
-  background: #10151e;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 3px;
-  gap: 2px;
-}
-.segment, .clearFilters {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 0 10px;
-  min-height: 32px;
-  white-space: nowrap;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text-secondary);
-  font: 500 0.8rem var(--font-body);
-  cursor: pointer;
-}
-.segment:hover, .clearFilters:hover { color: var(--text-primary); background: var(--bg-elevated); }
-.segment { position: relative; isolation: isolate; transition: color 150ms ease; }
-.segment[aria-pressed="true"] { color: #c3dcff; background: transparent; }
-.segmentIndicator {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  background: #203149;
-  box-shadow: inset 0 0 0 1px var(--border-accent);
-  pointer-events: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  .segment { transition: none; }
-}
-.tagsSelector { width: min(100%, 290px); }
-.tagsSelector .tagInput {
-  height: 40px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: #10151e;
-}
-.tagsSelector .tagInput:focus { border-color: var(--accent); }
-.tagDropdown { border: 1px solid var(--border); border-radius: 12px; background: var(--bg-surface); }
-.clearFilters { min-height: 40px; }
 
 /* Sugerencias Dropdown */
 .suggestionsDropdown {
@@ -315,6 +90,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: start;
   padding: 8px 14px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -328,6 +107,8 @@
   background: rgba(255, 255, 255, 0.04);
   color: var(--text-primary);
 }
+
+.suggestionItem:focus-visible { outline-offset: -2px; }
 
 .suggestionTitle {
   overflow: hidden;
@@ -357,57 +138,3 @@
   color: #ff4a4a;
   border: 1px solid rgba(239, 68, 68, 0.2);
 }
-
-@media (max-width: 768px) {
-  .topBar {
-    padding: 1rem 0;
-  }
-
-  .topBarInner {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
-
-  .controls {
-    width: 100%;
-  }
-
-  .searchWrapper {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .searchInput {
-    width: 100% !important;
-  }
-
-  .searchInput:focus {
-    width: 100% !important;
-  }
-
-  .addButton {
-    padding: 8px 12px;
-  }
-
-  .filtersBarInner {
-    gap: 10px 12px;
-  }
-
-  .originSelector,
-  .tagsSelector {
-    width: 100%;
-  }
-
-  .segmentedControl {
-    width: 100%;
-  }
-
-  .segment {
-    flex: 1;
-    text-align: center;
-    padding: 6px 4px;
-    font-size: 0.72rem;
-  }
-}
-
